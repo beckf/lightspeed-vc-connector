@@ -16,7 +16,7 @@ PyInstaller==3.4
 PyQt5==5.11.3
 PyQt5-sip==4.19.13
 pytz==2018.5
-PyYAML==3.13
+PyYAML>=4.2b1
 requests==2.19.1
 shellescape==3.4.1
 six==1.11.0

@@ -98,6 +98,9 @@ class Main(QMainWindow):
         # Settings Buttons
         self.ui.btn_SaveSettings.clicked.connect(self.save_settings_button)
 
+        # Export Options Buttons
+        self.ui.btn_SaveExportOptions.clicked.connect(self.save_settings_button)
+
         # Action Menu
         self.ui.actionQuit.triggered.connect(self.close)
 
@@ -128,6 +131,12 @@ class Main(QMainWindow):
             self.ui.txt_RefreshToken.setText(self.c["refresh_token"])
         if "account_id" in self.c.keys():
             self.ui.txt_LSAccountID.setText(self.c["account_id"])
+        if "vc_export_transaction_source" in self.c.keys():
+            self.ui.txt_ExportOptionsTransactionSource.setText(self.c["vc_export_transaction_source"])
+        if "vc_export_transaction_type" in self.c.keys():
+            self.ui.txt_ExportOptionsTransactionType.setText(self.c["vc_export_transaction_type"])
+        if "vc_export_school_year" in self.c.keys():
+            self.ui.txt_ExportOptionsSchoolYear.setText(self.c["vc_export_school_year"])
 
         # Set Active Tab to Sync
         self.ui.tabs.setCurrentIndex(0)
@@ -408,7 +417,10 @@ class Main(QMainWindow):
                  'Description',
                  'item_category',
                  'Customer_Account_Number',
-                 'Customer_Name']
+                 'Customer_Name',
+                 'Transaction_Type',
+                 'Transaction_Source',
+                 'School_Year']
 
             saleline_export_data.append(f)
 
@@ -447,7 +459,10 @@ class Main(QMainWindow):
                                                    str(s['Item']['description']),
                                                    str(s['Item']['categoryID']),
                                                    str(i['Customer']['companyRegistrationNumber']),
-                                                   str(i['Customer']['firstName'] + " " + i['Customer']['lastName'])
+                                                   str(i['Customer']['firstName'] + " " + i['Customer']['lastName']),
+                                                   self.ui.txt_ExportOptionsTransactionType.text(),
+                                                   self.ui.txt_ExportOptionsTransactionSource.text(),
+                                                   self.ui.txt_ExportOptionsSchoolYear.text()
                                                    ]
                                 saleline_export_data.append(saleline_single)
                             except:
@@ -465,7 +480,10 @@ class Main(QMainWindow):
                                                    str(i["SaleLines"]["SaleLine"]['Item']['description']),
                                                    str(i["SaleLines"]["SaleLine"]['Item']['categoryID']),
                                                    str(i['Customer']['companyRegistrationNumber']),
-                                                   str(i['Customer']['firstName'] + " " + i['Customer']['lastName'])
+                                                   str(i['Customer']['firstName'] + " " + i['Customer']['lastName']),
+                                                   self.ui.txt_ExportOptionsTransactionType.text(),
+                                                   self.ui.txt_ExportOptionsTransactionSource.text(),
+                                                   self.ui.txt_ExportOptionsSchoolYear.text()
                                                    ]
                                 saleline_export_data.append(saleline_single)
                         except:
@@ -650,6 +668,9 @@ class Main(QMainWindow):
             "refresh_token": self.ui.txt_RefreshToken.text(),
             "client_secret": self.ui.txt_DevelSecret.text(),
             "client_id": self.ui.txt_LSDevelID.text(),
+            "vc_export_transaction_source": self.ui.txt_ExportOptionsTransactionSource.text(),
+            "vc_export_transaction_type": self.ui.txt_ExportOptionsTransactionType.text(),
+            "vc_export_school_year": self.ui.txt_ExportOptionsSchoolYear.text()
         }
         # Save settings
         config.save_settings(settings, "config", self.config_passwd)

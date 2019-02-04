@@ -17,6 +17,8 @@ Features include:
 
 ![alt text](images/export.png "Export Tab")
 
+![alt text](images/export_options.png "Export Options Tab")
+
 ![alt text](images/settings.png "Settings Tab")
 
 ![alt text](images/password_tab.png "Password Tab")

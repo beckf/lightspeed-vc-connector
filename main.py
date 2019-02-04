@@ -9,6 +9,7 @@ import datetime
 import pytz
 import config
 import csv
+from decimal import Decimal, ROUND_HALF_UP
 import images
 from urllib.parse import quote
 import traceback
@@ -372,6 +373,9 @@ class Main(QMainWindow):
             self.debug_append_log("Missing export folder location.")
             self.select_export_directory()
 
+        # Notify UI
+        self.debug_append_log("Export Started for " + str(ct))
+
         # !! Sale Line Export !!
 
         # Export SaleLine Data
@@ -393,22 +397,22 @@ class Main(QMainWindow):
 
             saleline_export_data = []
 
-            f = ['saleID',
-                 'timestamp',
-                 'qty',
-                 'unit_price',
-                 'tax',
-                 'calc_total',
-                 'item_description',
+            # throw down some headers.
+            f = ['Person_ID',
+                 'POS_Transaction_ID',
+                 'Item_date',
+                 'Quantity',
+                 'Unit_Price',
+                 'Tax_Amount',
+                 'Total_Amount',
+                 'Description',
                  'item_category',
-                 'vc_id',
-                 'first_name',
-                 'last_name']
+                 'Customer_Account_Number',
+                 'Customer_Name']
 
             saleline_export_data.append(f)
 
             for i in salelines['Sale']:
-
                 # Does this invoice have a payment that is on account.
                 # Hopefully it is not a multi-tender transaction, but just in case...
 
@@ -425,20 +429,25 @@ class Main(QMainWindow):
                             on_account = True
 
                 if 'SaleLines' in i and on_account is True:
+
+                    # Check this is a customer we requested.
+                    if i['Customer']['customerTypeID'] != ct_id:
+                        continue
+
                     if isinstance(i['SaleLines']['SaleLine'], list):
                         for s in i['SaleLines']['SaleLine']:
                             try:
-                                saleline_single = [str(i['saleID']),
-                                                   str(i['timeStamp']),
+                                saleline_single = [str(i['Customer']['companyRegistrationNumber']),
+                                                   str(i['saleID']),
+                                                   str(i['timeStamp'][:10]),
                                                    str(s['unitQuantity']),
                                                    str(s['unitPrice']),
-                                                   str(s['calcTax1']),
-                                                   str(s['calcTotal']),
+                                                   self.roundup_decimal(Decimal(s['calcTax1'])),
+                                                   self.roundup_decimal(Decimal(s['calcTotal'])),
                                                    str(s['Item']['description']),
                                                    str(s['Item']['categoryID']),
                                                    str(i['Customer']['companyRegistrationNumber']),
-                                                   str(i['Customer']['firstName']),
-                                                   str(i['Customer']['lastName'])
+                                                   str(i['Customer']['firstName'] + " " + i['Customer']['lastName'])
                                                    ]
                                 saleline_export_data.append(saleline_single)
                             except:
@@ -446,17 +455,17 @@ class Main(QMainWindow):
                     else:
                         try:
                             if 'Item' in i["SaleLines"]["SaleLine"]:
-                                saleline_single = [str(i['saleID']),
-                                                   str(i["SaleLines"]["SaleLine"]['timeStamp']),
+                                saleline_single = [str(i['Customer']['companyRegistrationNumber']),
+                                                   str(i['saleID']),
+                                                   str(i["SaleLines"]["SaleLine"]['timeStamp'][:10]),
                                                    str(i["SaleLines"]["SaleLine"]['unitQuantity']),
                                                    str(i["SaleLines"]["SaleLine"]['unitPrice']),
-                                                   str(i["SaleLines"]["SaleLine"]['calcTax1']),
-                                                   str(i["SaleLines"]["SaleLine"]['calcTotal']),
+                                                   self.roundup_decimal(Decimal(i["SaleLines"]["SaleLine"]['calcTax1'])),
+                                                   self.roundup_decimal(Decimal(i["SaleLines"]["SaleLine"]['calcTotal'])),
                                                    str(i["SaleLines"]["SaleLine"]['Item']['description']),
                                                    str(i["SaleLines"]["SaleLine"]['Item']['categoryID']),
                                                    str(i['Customer']['companyRegistrationNumber']),
-                                                   str(i['Customer']['firstName']),
-                                                   str(i['Customer']['lastName'])
+                                                   str(i['Customer']['firstName'] + " " + i['Customer']['lastName'])
                                                    ]
                                 saleline_export_data.append(saleline_single)
                         except:
@@ -577,7 +586,6 @@ class Main(QMainWindow):
                 self.ls_customer_types[i["name"]] = i["customerTypeID"]
         except:
             self.debug_append_log("Cannot get customer types from API, or none exist.")
-
         # Update UI
         try:
             self.ui.combo_CustomerType.clear()
@@ -616,6 +624,14 @@ class Main(QMainWindow):
         :return:
         """
         self.ui.txtb_SyncLog.append(text)
+
+    def roundup_decimal(self,x):
+        """
+        Self-Explanatory
+        :param x: rounded up decimal to two places.
+        :return:
+        """
+        return x.quantize(Decimal(".01"), rounding=ROUND_HALF_UP)
 
     def select_export_directory(self):
         self.export_dir = QFileDialog.getExistingDirectory(self, 'Select Directory for Export')

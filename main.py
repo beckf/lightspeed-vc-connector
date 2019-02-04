@@ -131,10 +131,8 @@ class Main(QMainWindow):
             self.ui.txt_RefreshToken.setText(self.c["refresh_token"])
         if "account_id" in self.c.keys():
             self.ui.txt_LSAccountID.setText(self.c["account_id"])
-        if "vc_export_transaction_source" in self.c.keys():
-            self.ui.txt_ExportOptionsTransactionSource.setText(self.c["vc_export_transaction_source"])
-        if "vc_export_transaction_type" in self.c.keys():
-            self.ui.txt_ExportOptionsTransactionType.setText(self.c["vc_export_transaction_type"])
+        if "vc_export_catalog_item_fk" in self.c.keys():
+            self.ui.txt_ExportOptionsCatalog_Item_fk.setText(self.c["vc_export_catalog_item_fk"])
         if "vc_export_school_year" in self.c.keys():
             self.ui.txt_ExportOptionsSchoolYear.setText(self.c["vc_export_school_year"])
 
@@ -413,13 +411,13 @@ class Main(QMainWindow):
                  'Quantity',
                  'Unit_Price',
                  'Tax_Amount',
+                 'Purchase_Amount',
                  'Total_Amount',
                  'Description',
                  'item_category',
                  'Customer_Account_Number',
                  'Customer_Name',
-                 'Transaction_Type',
-                 'Transaction_Source',
+                 'Catalog_Item_fk',
                  'School_Year']
 
             saleline_export_data.append(f)
@@ -455,13 +453,13 @@ class Main(QMainWindow):
                                                    str(s['unitQuantity']),
                                                    str(s['unitPrice']),
                                                    self.roundup_decimal(Decimal(s['calcTax1'])),
+                                                   int(s['unitQuantity']) * Decimal(s['unitPrice']),
                                                    self.roundup_decimal(Decimal(s['calcTotal'])),
                                                    str(s['Item']['description']),
                                                    str(s['Item']['categoryID']),
                                                    str(i['Customer']['companyRegistrationNumber']),
                                                    str(i['Customer']['firstName'] + " " + i['Customer']['lastName']),
-                                                   self.ui.txt_ExportOptionsTransactionType.text(),
-                                                   self.ui.txt_ExportOptionsTransactionSource.text(),
+                                                   self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
                                                    self.ui.txt_ExportOptionsSchoolYear.text()
                                                    ]
                                 saleline_export_data.append(saleline_single)
@@ -476,13 +474,13 @@ class Main(QMainWindow):
                                                    str(i["SaleLines"]["SaleLine"]['unitQuantity']),
                                                    str(i["SaleLines"]["SaleLine"]['unitPrice']),
                                                    self.roundup_decimal(Decimal(i["SaleLines"]["SaleLine"]['calcTax1'])),
+                                                   int(i["SaleLines"]["SaleLine"]['unitQuantity']) * Decimal(i["SaleLines"]["SaleLine"]['unitPrice']),
                                                    self.roundup_decimal(Decimal(i["SaleLines"]["SaleLine"]['calcTotal'])),
                                                    str(i["SaleLines"]["SaleLine"]['Item']['description']),
                                                    str(i["SaleLines"]["SaleLine"]['Item']['categoryID']),
                                                    str(i['Customer']['companyRegistrationNumber']),
                                                    str(i['Customer']['firstName'] + " " + i['Customer']['lastName']),
-                                                   self.ui.txt_ExportOptionsTransactionType.text(),
-                                                   self.ui.txt_ExportOptionsTransactionSource.text(),
+                                                   self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
                                                    self.ui.txt_ExportOptionsSchoolYear.text()
                                                    ]
                                 saleline_export_data.append(saleline_single)
@@ -668,8 +666,7 @@ class Main(QMainWindow):
             "refresh_token": self.ui.txt_RefreshToken.text(),
             "client_secret": self.ui.txt_DevelSecret.text(),
             "client_id": self.ui.txt_LSDevelID.text(),
-            "vc_export_transaction_source": self.ui.txt_ExportOptionsTransactionSource.text(),
-            "vc_export_transaction_type": self.ui.txt_ExportOptionsTransactionType.text(),
+            "vc_export_catalog_item_fk": self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
             "vc_export_school_year": self.ui.txt_ExportOptionsSchoolYear.text()
         }
         # Save settings

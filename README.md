@@ -6,6 +6,7 @@ Features include:
 * Settings are encrypted in AES256-CBC.
 * Create and update customers in Lightspeed directly from Veracross API.
 * Create and update customers that have been updated in VC after a specific date.
+* Create and update customers based on Veracross Grade Level.
 * Export charges from Lightspeed in a CSV format that is usable by VC.
 * Export charges by individual sale items, or credit balance total.
 * Clear charge accounts back to zero by applying an exact credit after exporting.

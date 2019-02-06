@@ -98,6 +98,9 @@ class Main(QMainWindow):
         # Settings Buttons
         self.ui.btn_SaveSettings.clicked.connect(self.save_settings_button)
 
+        # Export Tab
+        self.ui.chk_ClearCharges.setChecked(False)
+
         # Export Options Buttons
         self.ui.btn_SaveExportOptions.clicked.connect(self.save_settings_button)
 
@@ -135,6 +138,10 @@ class Main(QMainWindow):
             self.ui.txt_ExportOptionsCatalog_Item_fk.setText(self.c["vc_export_catalog_item_fk"])
         if "vc_export_school_year" in self.c.keys():
             self.ui.txt_ExportOptionsSchoolYear.setText(self.c["vc_export_school_year"])
+        if "vc_export_transaction_type" in self.c.keys():
+            self.ui.txt_ExportOptionsTransactionType.setText(self.c["vc_export_transaction_type"])
+        if "vc_export_transaction_source" in self.c.keys():
+            self.ui.txt_ExportOptionsTransactionSource.setText(self.c["vc_export_transaction_source"])
 
         # Set Active Tab to Sync
         self.ui.tabs.setCurrentIndex(0)
@@ -381,7 +388,7 @@ class Main(QMainWindow):
             self.select_export_directory()
 
         # Notify UI
-        self.debug_append_log("Export Started for " + str(ct))
+        self.debug_append_log("Export started for customer type: " + str(ct))
 
         # !! Sale Line Export !!
 
@@ -405,20 +412,22 @@ class Main(QMainWindow):
             saleline_export_data = []
 
             # throw down some headers.
-            f = ['Person_ID',
-                 'POS_Transaction_ID',
-                 'Item_date',
-                 'Quantity',
-                 'Unit_Price',
-                 'Tax_Amount',
-                 'Purchase_Amount',
-                 'Total_Amount',
-                 'Description',
-                 'item_category',
-                 'Customer_Account_Number',
-                 'Customer_Name',
-                 'Catalog_Item_fk',
-                 'School_Year']
+            f = ['person_id',
+                 'customer_account_number',
+                 'customer_name',
+                 'transaction_source',
+                 'transaction_type',
+                 'school_year',
+                 'item_date',
+                 'catalog_item_fk',
+                 'description',
+                 'quantity',
+                 'unit_price',
+                 'purchase_amount',
+                 'tax_amount',
+                 'total_amount',
+                 'pos_transaction_id'
+                 ]
 
             saleline_export_data.append(f)
 
@@ -448,19 +457,20 @@ class Main(QMainWindow):
                         for s in i['SaleLines']['SaleLine']:
                             try:
                                 saleline_single = [str(i['Customer']['companyRegistrationNumber']),
-                                                   str(i['saleID']),
-                                                   str(i['timeStamp'][:10]),
-                                                   str(s['unitQuantity']),
-                                                   str(s['unitPrice']),
-                                                   self.roundup_decimal(Decimal(s['calcTax1'])),
-                                                   int(s['unitQuantity']) * Decimal(s['unitPrice']),
-                                                   self.roundup_decimal(Decimal(s['calcTotal'])),
-                                                   str(s['Item']['description']),
-                                                   str(s['Item']['categoryID']),
                                                    str(i['Customer']['companyRegistrationNumber']),
                                                    str(i['Customer']['firstName'] + " " + i['Customer']['lastName']),
+                                                   self.ui.txt_ExportOptionsTransactionSource.text(),
+                                                   self.ui.txt_ExportOptionsTransactionType.text(),
+                                                   self.ui.txt_ExportOptionsSchoolYear.text(),
+                                                   str(i['timeStamp'][:10]),
                                                    self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
-                                                   self.ui.txt_ExportOptionsSchoolYear.text()
+                                                   str(s['Item']['description']),
+                                                   str(s['unitQuantity']),
+                                                   str(s['unitPrice']),
+                                                   int(s['unitQuantity']) * Decimal(s['unitPrice']),
+                                                   self.roundup_decimal(Decimal(s['calcTax1'])),
+                                                   self.roundup_decimal(Decimal(s['calcTotal'])),
+                                                   str(i['saleID'])
                                                    ]
                                 saleline_export_data.append(saleline_single)
                             except:
@@ -469,19 +479,23 @@ class Main(QMainWindow):
                         try:
                             if 'Item' in i["SaleLines"]["SaleLine"]:
                                 saleline_single = [str(i['Customer']['companyRegistrationNumber']),
-                                                   str(i['saleID']),
-                                                   str(i["SaleLines"]["SaleLine"]['timeStamp'][:10]),
-                                                   str(i["SaleLines"]["SaleLine"]['unitQuantity']),
-                                                   str(i["SaleLines"]["SaleLine"]['unitPrice']),
-                                                   self.roundup_decimal(Decimal(i["SaleLines"]["SaleLine"]['calcTax1'])),
-                                                   int(i["SaleLines"]["SaleLine"]['unitQuantity']) * Decimal(i["SaleLines"]["SaleLine"]['unitPrice']),
-                                                   self.roundup_decimal(Decimal(i["SaleLines"]["SaleLine"]['calcTotal'])),
-                                                   str(i["SaleLines"]["SaleLine"]['Item']['description']),
-                                                   str(i["SaleLines"]["SaleLine"]['Item']['categoryID']),
                                                    str(i['Customer']['companyRegistrationNumber']),
                                                    str(i['Customer']['firstName'] + " " + i['Customer']['lastName']),
+                                                   self.ui.txt_ExportOptionsTransactionSource.text(),
+                                                   self.ui.txt_ExportOptionsTransactionType.text(),
+                                                   self.ui.txt_ExportOptionsSchoolYear.text(),
+                                                   str(i["SaleLines"]["SaleLine"]['timeStamp'][:10]),
                                                    self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
-                                                   self.ui.txt_ExportOptionsSchoolYear.text()
+                                                   str(i["SaleLines"]["SaleLine"]['Item']['description']),
+                                                   str(i["SaleLines"]["SaleLine"]['unitQuantity']),
+                                                   str(i["SaleLines"]["SaleLine"]['unitPrice']),
+                                                   int(i["SaleLines"]["SaleLine"]['unitQuantity']) * Decimal(
+                                                       i["SaleLines"]["SaleLine"]['unitPrice']),
+                                                   self.roundup_decimal(
+                                                       Decimal(i["SaleLines"]["SaleLine"]['calcTax1'])),
+                                                   self.roundup_decimal(
+                                                       Decimal(i["SaleLines"]["SaleLine"]['calcTotal'])),
+                                                   str(i['saleID'])
                                                    ]
                                 saleline_export_data.append(saleline_single)
                         except:
@@ -667,7 +681,9 @@ class Main(QMainWindow):
             "client_secret": self.ui.txt_DevelSecret.text(),
             "client_id": self.ui.txt_LSDevelID.text(),
             "vc_export_catalog_item_fk": self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
-            "vc_export_school_year": self.ui.txt_ExportOptionsSchoolYear.text()
+            "vc_export_school_year": self.ui.txt_ExportOptionsSchoolYear.text(),
+            "vc_export_transaction_type": self.ui.txt_ExportOptionsTransactionType.text(),
+            "vc_export_transaction_source": self.ui.txt_ExportOptionsTransactionSource.text()
         }
         # Save settings
         config.save_settings(settings, "config", self.config_passwd)

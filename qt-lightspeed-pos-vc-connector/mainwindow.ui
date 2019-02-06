@@ -442,7 +442,7 @@ max-height: 16px;
         <x>10</x>
         <y>60</y>
         <width>611</width>
-        <height>81</height>
+        <height>128</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_5">
@@ -465,6 +465,26 @@ max-height: 16px;
        </item>
        <item row="1" column="1">
         <widget class="QLineEdit" name="txt_ExportOptionsSchoolYear"/>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="txt_ExportOptionsTransactionSource"/>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="txt_ExportOptionsTransactionType"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_24">
+         <property name="text">
+          <string>Trasaction_Source</string>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_25">
+         <property name="text">
+          <string>Transaction_Type</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -822,16 +842,20 @@ max-height: 16px;
    <widget class="QLabel" name="lbl_Icon">
     <property name="geometry">
      <rect>
-      <x>500</x>
+      <x>150</x>
       <y>10</y>
-      <width>150</width>
-      <height>59</height>
+      <width>500</width>
+      <height>380</height>
      </rect>
     </property>
     <property name="text">
      <string>icon</string>
     </property>
    </widget>
+   <zorder>lbl_Icon</zorder>
+   <zorder>lbl_SyncLog</zorder>
+   <zorder>tabs</zorder>
+   <zorder>txtb_SyncLog</zorder>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">

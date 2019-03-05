@@ -170,18 +170,17 @@ class Lightspeed(object):
         if int(r['@attributes']['count']) >= 100:
             page_count = math.ceil(int(r['@attributes']['count']) / 100)
             page = 1
+            offset = 0
             while page <= page_count:
                 if page > 1:
-                    offset = page * 100
-                    if parameters:
-                        p = self.request_bucket("get", url + "&offset=" + str(offset))
-                    else:
-                        p = self.request_bucket("get", url + "?offset=" + str(offset))
+                    offset += 100
+                    p = self.request_bucket("get", url + "&offset=" + str(offset))
 
                     # Append new data to original request
                     for i in p:
                         if type(p[i]) == list:
                             r[i].extend(p[i])
+
                 page += 1
         return r
 

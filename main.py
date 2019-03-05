@@ -56,7 +56,8 @@ class Main(QMainWindow):
         self.ui.setupUi(self)
 
         self.threadpool = QThreadPool()
-        self.debug_append_log("Multithreading enabled with maximum %d threads." % self.threadpool.maxThreadCount())
+        self.debug_append_log("Multithreading enabled with maximum %d threads." % self.threadpool.maxThreadCount(),
+                              "info")
 
         # Gather Config
         self.config_passwd, ok = QInputDialog.getText(None,
@@ -75,7 +76,16 @@ class Main(QMainWindow):
         self.vc = veracross_api.Veracross(self.c)
         self.ls = lightspeed_api.Lightspeed(self.c)
 
-        self.timezone = pytz.timezone("America/New_York")
+        # Shop Name
+        self.shop_name = self.get_shop_name()
+
+        # Timezone stuff
+        self.shop_timezone_name = self.get_timezone()
+        self.timezone = pytz.timezone(self.shop_timezone_name)
+        self.shop_timezone_utc_offset = datetime.datetime.now(self.timezone).strftime('%z')
+        self.shop_timezone_utc_offset_iso = self.shop_timezone_utc_offset[:3] + ":" + self.shop_timezone_utc_offset[3:]
+        self.debug_append_log("Found %s timezone for shop named %s." % (self.shop_timezone_name, self.shop_name),
+                              "info")
 
         # Store data
         self.export_dir = ""
@@ -164,7 +174,7 @@ class Main(QMainWindow):
         Signal when create_update_customer is complete
         :return:
         """
-        self.debug_append_log("User Sync Complete.")
+        self.debug_append_log("User Sync Complete.", "info")
 
     def create_update_customer(self):
 
@@ -175,7 +185,7 @@ class Main(QMainWindow):
             param = False
 
         if self.ui.combo_SyncVCUserType.currentText() == "Students":
-            self.debug_append_log("Getting Veracross Students (Current)")
+            self.debug_append_log("Getting Veracross Students (Current)", "info")
             if param:
                 param = "option=2," + param
             else:
@@ -183,7 +193,7 @@ class Main(QMainWindow):
             vcdata = self.vc.pull("students", parameters=param)
             ls_customerTypeID = 1
         elif self.ui.combo_SyncVCUserType.currentText() == "Faculty Staff":
-            self.debug_append_log("Getting Veracross Faculty Staff (Faculty and Staff)")
+            self.debug_append_log("Getting Veracross Faculty Staff (Faculty and Staff)", "info")
             if param:
                 param_extended = param + "&roles=1,2"
                 vcdata = self.vc.pull("facstaff", parameters=param_extended)
@@ -191,7 +201,7 @@ class Main(QMainWindow):
                 vcdata = self.vc.pull("facstaff", "roles=1,2")
             ls_customerTypeID = 2
         else:
-            self.debug_append_log("Select VC User Type first.")
+            self.debug_append_log("Select VC User Type first.", "info")
             return None
 
         for i in vcdata:
@@ -299,18 +309,21 @@ class Main(QMainWindow):
                     # Compare the data
                     if not ls_customer == vc_person:
                         self.debug_append_log("Updating customer {} {}.".format(vc_formatted['Customer']['firstName'],
-                                                                                    vc_formatted['Customer']['lastName']))
+                                                                                    vc_formatted['Customer']['lastName']),
+                                              "info")
                         vc_formatted['Customer']['customerID'] = check_current['Customer']['customerID']
                         self.ls.update("Customer/" + vc_formatted['Customer']['customerID'], vc_formatted["Customer"])
                     else:
                         self.debug_append_log("Record {} {} already up to date.".format(vc_formatted['Customer']['firstName'],
-                                                                                vc_formatted['Customer']['lastName']))
+                                                                                vc_formatted['Customer']['lastName']),
+                                              "info")
                 else:
                     # Add new user when not found in LS
                     new_customer = self.ls.create("Customer", vc_formatted["Customer"])
                     self.debug_append_log("New Customer # {} Added: {} {}".format(new_customer['Customer']['customerID'],
                                                                                   new_customer['Customer']['firstName'],
-                                                                                  new_customer['Customer']['lastName']))
+                                                                                  new_customer['Customer']['lastName']),
+                                          "info")
 
     def delete_customer_worker(self):
         """
@@ -326,14 +339,14 @@ class Main(QMainWindow):
         Signal for when delete_customer is complete.
         :return:
         """
-        self.debug_append_log("Inactive user delete complete.")
+        self.debug_append_log("Inactive user delete complete.", "info")
 
     def delete_customer(self):
         """
         Delete records in Lightspeed.  Filters customers to those that have a companyRegistrationNumber
         :return:
         """
-        self.debug_append_log("Checking for customers to delete.")
+        self.debug_append_log("Checking for customers to delete.", "info")
 
         valid_vc_ids = []
         for i in self.vc.pull("facstaff", "roles=1,2"):
@@ -347,12 +360,13 @@ class Main(QMainWindow):
             if i["companyRegistrationNumber"] != '':
                 if int(i["companyRegistrationNumber"]) not in valid_vc_ids:
                     if float(i["CreditAccount"]["balance"]) <= 0:
-                        self.debug_append_log("Delete customer {} {}".format(i["firstName"], i["lastName"]))
+                        self.debug_append_log("Delete customer {} {}".format(i["firstName"], i["lastName"]), "info")
                         self.ls.delete("Customer/" + i["customerID"])
                     else:
                         self.debug_append_log("Cannot delete customer {}, {} {} with credit balance.".format(i["customerID"],
                                                                                                              i["firstName"],
-                                                                                                             i["lastName"]))
+                                                                                                             i["lastName"]),
+                                              "info")
 
     def export_charge_balance_worker(self):
         """
@@ -368,7 +382,7 @@ class Main(QMainWindow):
         Signal for when export_charge is complete.
         :return:
         """
-        self.debug_append_log("File export complete.")
+        self.debug_append_log("File export complete.", "info")
 
     def export_charge_balance(self):
         """
@@ -384,30 +398,40 @@ class Main(QMainWindow):
 
         # Ensure there is an export location
         if len(self.ui.line_ExportFolder.text()) == 0:
-            self.debug_append_log("Missing export folder location.")
+            self.debug_append_log("Missing export folder location.", "info")
             self.select_export_directory()
 
         # Notify UI
-        self.debug_append_log("Export started for customer type: " + str(ct))
+        self.debug_append_log("Export started for customer type: " + str(ct), "info")
 
         # !! Sale Line Export !!
 
         # Export SaleLine Data
         if self.ui.chk_ExportSaleLinesEnabled.isChecked():
-            try:
-                begin_date_ui = self.ui.dateEdit_BeginExportRange.date()
-                begin_date = begin_date_ui.toPyDate()
-                end_date_ui = self.ui.dateEdit_EndExportRange.date()
-                end_date = end_date_ui.toPyDate()
+            begin_date_ui = self.ui.dateEdit_BeginExportRange.date()
+            begin_date = begin_date_ui.toPyDate()
+            end_date_ui = self.ui.dateEdit_EndExportRange.date()
+            end_date = end_date_ui.toPyDate()
 
+            if len(str(begin_date)) != 10 or len(str(end_date)) != 10:
+                self.debug_append_log("Invalid begin or end date.", "info")
+                self.debug_append_log(str(begin_date), "info")
+                return None
+
+            try:
                 parameters = {}
                 parameters['load_relations'] = 'all'
                 parameters['completed'] = 'true'
-                parameters['timeStamp'] = '{},{}T00:00:01-04:00,{}T23:59:59-04:00'.format("><",begin_date,end_date)
+                parameters['timeStamp'] = '{},{}T00:00:00-04:00,{}T23:59:59{}'.format("><",
+                                                                                      begin_date,
+                                                                                      end_date,
+                                                                                      self.shop_timezone_utc_offset_iso)
+                self.debug_append_log("Querying Lightspeed \"Sales\" data point with parameters " + str(parameters),
+                                      "debug")
                 salelines = self.ls.get("Sale", parameters=parameters)
             except:
                 salelines = None
-                self.debug_append_log("Unable to get SaleLine data.")
+                self.debug_append_log("Unable to get SaleLine data.", "info")
 
             saleline_export_data = []
 
@@ -429,13 +453,16 @@ class Main(QMainWindow):
                  'pos_transaction_id'
                  ]
 
+            # Add debug fields if requested
+            if self.ui.chk_DebugExport.isChecked():
+                f.append('timestamp')
+
             saleline_export_data.append(f)
 
             for i in salelines['Sale']:
                 # Does this invoice have a payment that is on account.
                 # Hopefully it is not a multi-tender transaction, but just in case...
 
-                # To Do: Fix - Only works if more than one sale is returned.
                 on_account = False
 
                 if 'SalePayments' in i:
@@ -466,15 +493,21 @@ class Main(QMainWindow):
                                                    self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
                                                    str(s['Item']['description']),
                                                    str(s['unitQuantity']),
-                                                   str(s['unitPrice']),
-                                                   int(s['unitQuantity']) * Decimal(s['unitPrice']),
+                                                   Decimal(s['unitPrice']) -
+                                                   (Decimal(s['calcLineDiscount']) / int(s['unitQuantity'])),
+                                                   Decimal(s['displayableSubtotal']),
                                                    self.roundup_decimal(Decimal(s['calcTax1'])),
                                                    self.roundup_decimal(Decimal(s['calcTotal'])),
                                                    str(i['saleID'])
                                                    ]
+
+                                # Debug fields
+                                if self.ui.chk_DebugExport.isChecked():
+                                    saleline_single.append(str(i['timeStamp']))
+
                                 saleline_export_data.append(saleline_single)
                             except:
-                                self.debug_append_log("Unable to append multiple SaleLine data to CSV.")
+                                self.debug_append_log("Unable to append multiple SaleLine data to CSV.", "info")
                     else:
                         try:
                             if 'Item' in i["SaleLines"]["SaleLine"]:
@@ -488,18 +521,24 @@ class Main(QMainWindow):
                                                    self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
                                                    str(i["SaleLines"]["SaleLine"]['Item']['description']),
                                                    str(i["SaleLines"]["SaleLine"]['unitQuantity']),
-                                                   str(i["SaleLines"]["SaleLine"]['unitPrice']),
-                                                   int(i["SaleLines"]["SaleLine"]['unitQuantity']) * Decimal(
-                                                       i["SaleLines"]["SaleLine"]['unitPrice']),
+                                                   Decimal(i["SaleLines"]["SaleLine"]['unitPrice']) -
+                                                   (Decimal(i["SaleLines"]["SaleLine"]['calcLineDiscount']) /
+                                                    int(i["SaleLines"]["SaleLine"]['unitQuantity'])),
+                                                   Decimal(i["SaleLines"]["SaleLine"]['displayableSubtotal']),
                                                    self.roundup_decimal(
                                                        Decimal(i["SaleLines"]["SaleLine"]['calcTax1'])),
                                                    self.roundup_decimal(
                                                        Decimal(i["SaleLines"]["SaleLine"]['calcTotal'])),
                                                    str(i['saleID'])
                                                    ]
+                                # Debug fields
+                                if self.ui.chk_DebugExport.isChecked():
+                                    saleline_single.append(str(i["SaleLines"]["SaleLine"]['timeStamp']))
+
                                 saleline_export_data.append(saleline_single)
                         except:
-                            self.debug_append_log("Unable to append single saleline for sale # " + str(i['saleID']))
+                            self.debug_append_log("Unable to append single saleline for sale # " + str(i['saleID']),
+                                                  "info")
 
             try:
                 filename = str(self.ui.line_ExportFolder.text())
@@ -513,7 +552,7 @@ class Main(QMainWindow):
                     for row in saleline_export_data:
                         writer.writerow(row)
             except:
-                self.debug_append_log("Failed to export CSV salelines data.")
+                self.debug_append_log("Failed to export CSV salelines data.", "info")
                 return None
 
         # !! Account Balance Export !!
@@ -521,7 +560,7 @@ class Main(QMainWindow):
             # Get Customers with Balance on Account. Used to export balances and clear accounts.
             customers = self.ls.get("Customer", parameters=dict(load_relations='["CreditAccount"]'))
         except:
-            self.debug_append_log("Unable to get Customer data from Lightspeed.")
+            self.debug_append_log("Unable to get Customer data from Lightspeed.", "info")
             return None
 
         try:
@@ -555,7 +594,7 @@ class Main(QMainWindow):
                                                         int(i["creditAccountID"]))
 
         except:
-            self.debug_append_log("Failed to format CSV data.")
+            self.debug_append_log("Failed to format CSV data.", "info")
             return None
 
         try:
@@ -570,7 +609,7 @@ class Main(QMainWindow):
                 for row in export_data:
                     writer.writerow(row)
         except:
-            self.debug_append_log("Failed to export CSV balance data.")
+            self.debug_append_log("Failed to export CSV balance data.", "info")
             return None
 
     def clear_account_balances(self, customerID, balance, paymentID, creditAccountID):
@@ -601,13 +640,14 @@ class Main(QMainWindow):
                                 }
                             }
         except:
-            self.debug_append_log("Unable to format data to clear balances.")
+            self.debug_append_log("Unable to format data to clear balances.", "info")
 
         try:
             self.ls.create('Sale', data=formatted_request)
-            self.debug_append_log("Cleared balance of {} of customerID {}".format(str(balance), str(customerID)))
+            self.debug_append_log("Cleared balance of {} of customerID {}".format(str(balance), str(customerID)),
+                                  "info")
         except:
-            self.debug_append_log("Unable to clear balance for customerID {}".format(str(customerID)))
+            self.debug_append_log("Unable to clear balance for customerID {}".format(str(customerID)), "info")
 
     def get_customer_types(self):
         try:
@@ -615,13 +655,13 @@ class Main(QMainWindow):
             for i in ct['CustomerType']:
                 self.ls_customer_types[i["name"]] = i["customerTypeID"]
         except:
-            self.debug_append_log("Cannot get customer types from API, or none exist.")
+            self.debug_append_log("Cannot get customer types from API, or none exist.", "info")
         # Update UI
         try:
             self.ui.combo_CustomerType.clear()
             self.ui.combo_CustomerType.addItems(self.ls_customer_types.keys())
         except:
-            self.debug_append_log("Error getting customer types.")
+            self.debug_append_log("Error getting customer types.", "info")
 
     def get_payment_types(self):
         try:
@@ -629,14 +669,30 @@ class Main(QMainWindow):
             for i in pt['PaymentType']:
                 self.ls_payment_types[i["name"]] = i["paymentTypeID"]
         except:
-            self.debug_append_log("Cannot get payment types from API.")
+            self.debug_append_log("Cannot get payment types from API.", "info")
 
         # Update UI
         try:
             self.ui.combo_PaymentType.clear()
             self.ui.combo_PaymentType.addItems(self.ls_payment_types.keys())
         except:
-            self.debug_append_log("Error getting payment types.")
+            self.debug_append_log("Error getting payment types.", "info")
+
+    def get_timezone(self):
+        try:
+            shop_tz = self.ls.get("Shop")
+            return shop_tz["Shop"]["timeZone"]
+        except:
+            self.debug_append_log("Error getting shop timezone. Using UTC.", "info")
+            return "UTC"
+
+    def get_shop_name(self):
+        try:
+            shop_tz = self.ls.get("Shop")
+            return shop_tz["Shop"]["name"]
+        except:
+            self.debug_append_log("Error getting shop name.", "info")
+            return "Unknown Shop Name"
 
     def authorize_app(self):
         """
@@ -647,13 +703,16 @@ class Main(QMainWindow):
             token = self.ls.get_authorization_token(self.ui.txt_CodeReturned.text())
             self.ui.txt_AuthorizeReturnedRefreshToken.setText(str(token))
 
-    def debug_append_log(self, text):
+    def debug_append_log(self, text, level):
         """
         Write to log window
         :param text:
         :return:
         """
-        self.ui.txtb_SyncLog.append(text)
+        if level is "debug" and self.ui.chk_DebugExport.isChecked():
+            self.ui.txtb_SyncLog.append(text)
+        if level is "info":
+            self.ui.txtb_SyncLog.append(text)
 
     def roundup_decimal(self,x):
         """

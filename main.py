@@ -76,7 +76,16 @@ class Main(QMainWindow):
         self.vc = veracross_api.Veracross(self.c)
         self.ls = lightspeed_api.Lightspeed(self.c)
 
-        self.timezone = pytz.timezone("America/New_York")
+        # Shop Name
+        self.shop_name = self.get_shop_name()
+
+        # Timezone stuff
+        self.shop_timezone_name = self.get_timezone()
+        self.timezone = pytz.timezone(self.shop_timezone_name)
+        self.shop_timezone_utc_offset = datetime.datetime.now(self.timezone).strftime('%z')
+        self.shop_timezone_utc_offset_iso = self.shop_timezone_utc_offset[:3] + ":" + self.shop_timezone_utc_offset[3:]
+        self.debug_append_log("Found %s timezone for shop named %s." % (self.shop_timezone_name, self.shop_name),
+                              "info")
 
         # Store data
         self.export_dir = ""
@@ -413,7 +422,10 @@ class Main(QMainWindow):
                 parameters = {}
                 parameters['load_relations'] = 'all'
                 parameters['completed'] = 'true'
-                parameters['timeStamp'] = '{},{}T00:00:00-04:00,{}T23:59:59-04:00'.format("><",begin_date,end_date)
+                parameters['timeStamp'] = '{},{}T00:00:00-04:00,{}T23:59:59{}'.format("><",
+                                                                                      begin_date,
+                                                                                      end_date,
+                                                                                      self.shop_timezone_utc_offset_iso)
                 self.debug_append_log("Querying Lightspeed \"Sales\" data point with parameters " + str(parameters),
                                       "debug")
                 salelines = self.ls.get("Sale", parameters=parameters)
@@ -665,6 +677,22 @@ class Main(QMainWindow):
             self.ui.combo_PaymentType.addItems(self.ls_payment_types.keys())
         except:
             self.debug_append_log("Error getting payment types.", "info")
+
+    def get_timezone(self):
+        try:
+            shop_tz = self.ls.get("Shop")
+            return shop_tz["Shop"]["timeZone"]
+        except:
+            self.debug_append_log("Error getting shop timezone. Using UTC.", "info")
+            return "UTC"
+
+    def get_shop_name(self):
+        try:
+            shop_tz = self.ls.get("Shop")
+            return shop_tz["Shop"]["name"]
+        except:
+            self.debug_append_log("Error getting shop name.", "info")
+            return "Unknown Shop Name"
 
     def authorize_app(self):
         """

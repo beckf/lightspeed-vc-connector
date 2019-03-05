@@ -45,7 +45,7 @@ Features include:
 
 5) Click Save Settings and restart the application.
 
-6) Go to the Authroize Tab and click the Authorize link.  Login to LS using your admin login id and password.
+6) Go to the Authorize Tab and click the Authorize link.  Login to LS using your admin login id and password.
 
 7) Grant your application access to the account.  When granted, if you used localhost as the redirect, you will see an error not found page.  
 In the URL copy the token after the equals sign and paste this into the first text box. You must complete the next step within 30 seconds.  

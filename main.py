@@ -104,6 +104,7 @@ class Main(QMainWindow):
         self.ui.btn_GetPaymentTypes.clicked.connect(self.get_payment_types)
         self.ui.btn_Authorize.clicked.connect(self.authorize_app)
         self.ui.btn_ChangeEncPassword.clicked.connect(self.change_password)
+        self.ui.btn_SaveLog.clicked.connect(self.save_log_to_file)
 
         # Settings Buttons
         self.ui.btn_SaveSettings.clicked.connect(self.save_settings_button)
@@ -191,7 +192,7 @@ class Main(QMainWindow):
             else:
                 param = "option=2"
             vcdata = self.vc.pull("students", parameters=param)
-            ls_customerTypeID = 1
+            ls_customerTypeID = self.ls_customer_types["Student"]
         elif self.ui.combo_SyncVCUserType.currentText() == "Faculty Staff":
             self.debug_append_log("Getting Veracross Faculty Staff (Faculty and Staff)", "info")
             if param:
@@ -199,9 +200,9 @@ class Main(QMainWindow):
                 vcdata = self.vc.pull("facstaff", parameters=param_extended)
             else:
                 vcdata = self.vc.pull("facstaff", "roles=1,2")
-            ls_customerTypeID = 2
+            ls_customerTypeID = self.ls_customer_types["FacultyStaff"]
         else:
-            self.debug_append_log("Select VC User Type first.", "info")
+            self.debug_append_log("Select Veracross User Type first.", "info")
             return None
 
         for i in vcdata:
@@ -351,7 +352,7 @@ class Main(QMainWindow):
         valid_vc_ids = []
         for i in self.vc.pull("facstaff", "roles=1,2"):
             valid_vc_ids.append(i["person_pk"])
-        for i in self.vc.pull("students"):
+        for i in self.vc.pull("students", "option=2"):
             valid_vc_ids.append(i["person_pk"])
 
         current_customers = self.ls.get("Customer", dict(load_relations="all"))
@@ -360,8 +361,12 @@ class Main(QMainWindow):
             if i["companyRegistrationNumber"] != '':
                 if int(i["companyRegistrationNumber"]) not in valid_vc_ids:
                     if float(i["CreditAccount"]["balance"]) <= 0:
-                        self.debug_append_log("Delete customer {} {}".format(i["firstName"], i["lastName"]), "info")
-                        self.ls.delete("Customer/" + i["customerID"])
+                        if self.ui.checkBox_SyncSimulateDelete.isChecked():
+                            self.debug_append_log("Customer {} {} would normally be deleted (Simulation)".format(
+                                i["firstName"], i["lastName"]), "info")
+                        else:
+                            self.debug_append_log("Deleting customer {} {}".format(i["firstName"], i["lastName"]), "info")
+                            self.ls.delete("Customer/" + i["customerID"])
                     else:
                         self.debug_append_log("Cannot delete customer {}, {} {} with credit balance.".format(i["customerID"],
                                                                                                              i["firstName"],
@@ -725,6 +730,14 @@ class Main(QMainWindow):
     def select_export_directory(self):
         self.export_dir = QFileDialog.getExistingDirectory(self, 'Select Directory for Export')
         self.ui.line_ExportFolder.setText(self.export_dir)
+
+    def save_log_to_file(self):
+        log_dir = QFileDialog.getExistingDirectory(self, 'Select Directory to Save Log')
+        filename = log_dir + str("/LSVCConnector.log")
+        filepath = open(filename, 'w')
+        with filepath:
+            filepath.write(self.ui.txtb_SyncLog.toPlainText())
+
 
     def save_settings_button(self):
         """

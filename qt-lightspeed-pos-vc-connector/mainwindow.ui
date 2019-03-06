@@ -67,19 +67,6 @@ max-height: 16px;
 </string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QLabel" name="lbl_SyncLog">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>50</y>
-      <width>60</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Log:</string>
-    </property>
-   </widget>
    <widget class="QTabWidget" name="tabs">
     <property name="geometry">
      <rect>
@@ -93,7 +80,7 @@ max-height: 16px;
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_Sync">
      <attribute name="title">
@@ -109,6 +96,20 @@ max-height: 16px;
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
+       <item row="3" column="0">
+        <widget class="QLabel" name="label_19">
+         <property name="text">
+          <string>Limit Sync to Grade Level</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QCheckBox" name="checkBox_SyncChangesAfterDate">
+         <property name="text">
+          <string>Enable</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="1">
         <widget class="QComboBox" name="combo_SyncVCUserType">
          <item>
@@ -126,34 +127,6 @@ max-height: 16px;
            <string>Students</string>
           </property>
          </item>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>VC User Type</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>Only Include Changes After Specified Date</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QCheckBox" name="checkBox_SyncChangesAfterDate">
-         <property name="text">
-          <string>Enable</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="1">
-        <widget class="QDateEdit" name="dateEdit_SyncUpdatedAfterDate">
-         <property name="displayFormat">
-          <string>yyyy-MM-dd</string>
-         </property>
         </widget>
        </item>
        <item row="3" column="1">
@@ -235,10 +208,38 @@ max-height: 16px;
          </item>
         </widget>
        </item>
-       <item row="3" column="0">
-        <widget class="QLabel" name="label_19">
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Limit Sync to Grade Level</string>
+          <string>VC User Type</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QDateEdit" name="dateEdit_SyncUpdatedAfterDate">
+         <property name="displayFormat">
+          <string>yyyy-MM-dd</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Only Include Changes After Specified Date</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="1">
+        <widget class="QCheckBox" name="checkBox_SyncSimulateDelete">
+         <property name="text">
+          <string>Enable</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_27">
+         <property name="text">
+          <string>Simulate Deleting Inactive Users</string>
          </property>
         </widget>
        </item>
@@ -866,10 +867,46 @@ max-height: 16px;
      <string>icon</string>
     </property>
    </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>29</y>
+      <width>631</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="lbl_SyncLog">
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;Log&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::RichText</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_28">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_SaveLog">
+       <property name="text">
+        <string>Save Log</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
    <zorder>lbl_Icon</zorder>
-   <zorder>lbl_SyncLog</zorder>
    <zorder>tabs</zorder>
    <zorder>txtb_SyncLog</zorder>
+   <zorder>horizontalLayoutWidget_2</zorder>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">

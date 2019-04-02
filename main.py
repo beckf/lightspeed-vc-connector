@@ -683,6 +683,11 @@ class Main(QMainWindow):
         except:
             self.debug_append_log("Error getting payment types.", "info")
 
+        try:
+            self.ui.combo_PaymentType.setCurrentIndex(self.ui.combo_PaymentType.findText("Credit Account"))
+        except:
+            self.debug_append_log("Unable to set default payment type to Credit Account.", "info")
+
     def get_timezone(self):
         try:
             shop_tz = self.ls.get("Shop")
@@ -737,7 +742,6 @@ class Main(QMainWindow):
         filepath = open(filename, 'w')
         with filepath:
             filepath.write(self.ui.txtb_SyncLog.toPlainText())
-
 
     def save_settings_button(self):
         """

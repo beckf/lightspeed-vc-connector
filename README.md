@@ -2,7 +2,7 @@
 
 This is a PyQT application developed to provide integration between Veracross and Lightspeed.
 
-Features include:
+### Features
 * Settings are encrypted in AES256-CBC.
 * Create and update customers in Lightspeed directly from Veracross API.
 * Create and update customers that have been updated in VC after a specific date.
@@ -13,6 +13,8 @@ Features include:
 * Clear charge accounts back to zero by applying an exact credit after exporting.
 * Easily authorize the application using your own Lightspeed Developer account and your Lightspeed Retail account.
 
+### Known Issues
+* Export of individual SaleLines as opposed to the entire invoice total will round the totals differently from LS.  
 
 ### Screenshots
 ![alt text](images/sync.png "Sync Tab")

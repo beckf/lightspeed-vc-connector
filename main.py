@@ -13,6 +13,7 @@ from decimal import Decimal, ROUND_HALF_UP
 import images
 from urllib.parse import quote
 import traceback
+import requests
 
 
 class Worker(QRunnable):
@@ -60,10 +61,18 @@ class Main(QMainWindow):
                               "info")
 
         # Gather Config
-        self.config_passwd, ok = QInputDialog.getText(None,
-                                                      "Settings Encryption",
-                                                      "Enter encryption password for settings.",
-                                                      QLineEdit.Password)
+        if config.check_enc() is True:
+            self.config_passwd, ok = QInputDialog.getText(None,
+                                                          "Settings Encryption",
+                                                          "Enter encryption password for settings.",
+                                                          QLineEdit.Password)
+        else:
+            self.config_passwd, ok = QInputDialog.getText(None,
+                                                          "New Settings File Encryption",
+                                                          "Enter the encryption password that will be "
+                                                          "used to encrypt the settings.",
+                                                          QLineEdit.Password)
+
         if ok and self.config_passwd:
             print("password=%s" % self.config_passwd)
         try:
@@ -160,6 +169,9 @@ class Main(QMainWindow):
         # Get some initial LS Data
         self.get_customer_types()
         self.get_payment_types()
+
+        # Get License
+        self.get_license()
 
     def create_update_customer_worker(self):
         """
@@ -783,6 +795,14 @@ class Main(QMainWindow):
             QMessageBox.question(self, 'Password Too Short.',
                                  'The password specified is too short.',
                                  QMessageBox.Ok)
+
+    def get_license(self):
+        try:
+            r = requests.get('https://raw.githubusercontent.com/beckf/lightspeed-vc-connector/master/LICENSE',
+                             allow_redirects=True)
+            self.ui.textBrowser_License.setText(r.text)
+        except:
+            self.ui.textBrowser_License.setText("Unable to connect to the internet.")
 
 
 if __name__ == '__main__':

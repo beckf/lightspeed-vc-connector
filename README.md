@@ -14,7 +14,9 @@ This is a PyQT application developed to provide integration between Veracross an
 * Easily authorize the application using your own Lightspeed Developer account and your Lightspeed Retail account.
 
 ### Known Issues
-* Export of individual SaleLines as opposed to the entire invoice total will round the totals differently from LS.  
+* Export of individual SaleLines as opposed to the entire invoice total will round the totals differently. 
+SaleLines are stored in Lightspeed to the thousandth of a cent.  This means that the invoice total could be rounded 
+differently than each individual item.
 
 ### Screenshots
 ![alt text](images/sync.png "Sync Tab")
@@ -31,14 +33,17 @@ This is a PyQT application developed to provide integration between Veracross an
 
 
 ### How to Get Started
-1) Create two CustomerTypes in your Lightspeed shop. **Student** and **FacultyStaff**
+1) Create two CustomerTypes in your Lightspeed shop for Veracross Students and Faculty named **Student** and **FacultyStaff**
 
-2) [Signup with Lightspeed OAuth](https://cloud.lightspeedapp.com/oauth/register.php)
+2) [Signup with Lightspeed OAuth](https://cloud.lightspeedapp.com/oauth/register.php).
+* You will run the application under your own Lightspeed developer account/application.
+* Be sure to set the redirect URI to http://localhost . This will leave the refresh token in the browser window for you 
+to copy/paste in step 10. You will copy/paste the key show after the equals sign in the URL.
 
 ![alt text](images/ls_oauth_signup.png "LS OAuth")
 
 3) Obtain Veracross API credentials from VC Account Rep.
-
+    
 4) Run the application.  You will be prompted for a password.  This password will be used for encrypting the settings file.
 
 5) On the settings tab, enter:

@@ -61,10 +61,18 @@ class Main(QMainWindow):
                               "info")
 
         # Gather Config
-        self.config_passwd, ok = QInputDialog.getText(None,
-                                                      "Settings Encryption",
-                                                      "Enter encryption password for settings.",
-                                                      QLineEdit.Password)
+        if config.check_enc() is True:
+            self.config_passwd, ok = QInputDialog.getText(None,
+                                                          "Settings Encryption",
+                                                          "Enter encryption password for settings.",
+                                                          QLineEdit.Password)
+        else:
+            self.config_passwd, ok = QInputDialog.getText(None,
+                                                          "New Settings File Encryption",
+                                                          "Enter the encryption password that will be "
+                                                          "used to encrypt the settings.",
+                                                          QLineEdit.Password)
+
         if ok and self.config_passwd:
             print("password=%s" % self.config_passwd)
         try:

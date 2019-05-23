@@ -80,7 +80,10 @@ max-height: 16px;
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>6</number>
+    </property>
+    <property name="usesScrollButtons">
+     <bool>false</bool>
     </property>
     <widget class="QWidget" name="tab_Sync">
      <attribute name="title">
@@ -840,6 +843,27 @@ max-height: 16px;
       </property>
       <property name="wordWrap">
        <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_License">
+     <attribute name="title">
+      <string>License</string>
+     </attribute>
+     <widget class="QTextBrowser" name="textBrowser_License">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>601</width>
+        <height>371</height>
+       </rect>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOn</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOn</enum>
       </property>
      </widget>
     </widget>

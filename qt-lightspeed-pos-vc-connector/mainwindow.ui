@@ -80,7 +80,7 @@ max-height: 16px;
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>6</number>
+     <number>0</number>
     </property>
     <property name="usesScrollButtons">
      <bool>false</bool>

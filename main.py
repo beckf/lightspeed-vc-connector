@@ -12,9 +12,7 @@ import config
 import csv
 from decimal import Decimal, ROUND_HALF_UP
 import images
-from urllib.parse import quote
 import traceback
-import requests
 
 
 class Worker(QRunnable):
@@ -752,9 +750,13 @@ class Main(QMainWindow):
     def save_log_to_file(self):
         log_dir = QFileDialog.getExistingDirectory(self, 'Select Directory to Save Log')
         filename = log_dir + str("/LSVCConnector.log")
-        filepath = open(filename, 'w')
-        with filepath:
-            filepath.write(self.ui.txtb_SyncLog.toPlainText())
+        try:
+            if os.path.isdir(log_dir):
+                filepath = open(filename, 'w')
+                with filepath:
+                    filepath.write(self.ui.txtb_SyncLog.toPlainText())
+        except:
+            self.debug_append_log("Unable to save log file.", "info")
 
     def save_settings_button(self):
         """

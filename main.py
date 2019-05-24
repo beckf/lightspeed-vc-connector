@@ -5,6 +5,7 @@ from mainwindow import Ui_MainWindow
 import veracross_api
 import lightspeed_api
 import sys, getopt
+import os
 import datetime
 import pytz
 import config
@@ -63,14 +64,14 @@ class Main(QMainWindow):
         # Gather Config
         if config.check_enc() is True:
             self.config_passwd, ok = QInputDialog.getText(None,
-                                                          "Settings Encryption",
-                                                          "Enter encryption password for settings.",
+                                                          "Settings Encryption Password",
+                                                          "Enter encryption password to unlock settings.",
                                                           QLineEdit.Password)
         else:
             self.config_passwd, ok = QInputDialog.getText(None,
-                                                          "New Settings File Encryption",
+                                                          "New Settings File Encryption Password",
                                                           "Enter the encryption password that will be "
-                                                          "used to encrypt the settings.",
+                                                          "used to encrypt the settings file.",
                                                           QLineEdit.Password)
 
         if ok and self.config_passwd:
@@ -798,11 +799,15 @@ class Main(QMainWindow):
 
     def get_license(self):
         try:
-            r = requests.get('https://raw.githubusercontent.com/beckf/lightspeed-vc-connector/master/LICENSE',
-                             allow_redirects=True)
-            self.ui.textBrowser_License.setText(r.text)
+            working_dir = sys._MEIPASS
+        except AttributeError:
+            working_dir = os.getcwd()
+        try:
+            file = os.path.join(working_dir, "LICENSE")
+            r = open(file, "r")
+            self.ui.textBrowser_License.setText(r.read())
         except:
-            self.ui.textBrowser_License.setText("Unable to connect to the internet.")
+            self.ui.textBrowser_License.setText("Unable to read license file.")
 
 
 if __name__ == '__main__':

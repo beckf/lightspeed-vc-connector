@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'qt-lightspeed-pos-vc-connector/mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12.2
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -441,7 +442,7 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(6)
+        self.tabs.setCurrentIndex(5)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -521,7 +522,7 @@ class Ui_MainWindow(object):
         self.lbl_AuthorizeCodeReturned.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">Code Returned</p><p align=\"center\">Copy and Paste from URL</p></body></html>"))
         self.btn_Authorize.setText(_translate("MainWindow", "Authorize"))
         self.label_15.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">LS Refresh Token Returned</p></body></html>"))
-        self.label_16.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">Copy and paste the refresh token returned from Lightspeed into your Refresh Token setting on the settings tab. </p><p align=\"center\">Be sure to update the account number from Lightspeed as well.</p></body></html>"))
+        self.label_16.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><br/></p></body></html>"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab_Authorize), _translate("MainWindow", "Authorize App"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab_License), _translate("MainWindow", "License"))
         self.lbl_Icon.setText(_translate("MainWindow", "icon"))
@@ -529,4 +530,5 @@ class Ui_MainWindow(object):
         self.btn_SaveLog.setText(_translate("MainWindow", "Save Log"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
+
 

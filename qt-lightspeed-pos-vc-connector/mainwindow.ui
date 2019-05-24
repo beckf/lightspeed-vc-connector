@@ -80,7 +80,7 @@ max-height: 16px;
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>5</number>
     </property>
     <property name="usesScrollButtons">
      <bool>false</bool>
@@ -836,7 +836,7 @@ max-height: 16px;
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Copy and paste the refresh token returned from Lightspeed into your Refresh Token setting on the settings tab. &lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Be sure to update the account number from Lightspeed as well.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="textFormat">
        <enum>Qt::RichText</enum>

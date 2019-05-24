@@ -4,7 +4,7 @@ from PyQt5.QtCore import *
 from mainwindow import Ui_MainWindow
 import veracross_api
 import lightspeed_api
-import sys, getopt
+import sys
 import os
 import datetime
 import pytz
@@ -74,12 +74,12 @@ class Main(QMainWindow):
 
         if ok and self.config_passwd:
             print("password=%s" % self.config_passwd)
-        try:
-            self.c = config.load_settings("config", self.config_passwd)
-        except ValueError:
-            QMessageBox.question(self, 'Incorrect Encryption Password',
-                                       "The password provided will not decrypt the settings.",
-                                       QMessageBox.Ok)
+            try:
+                self.c = config.load_settings("config", self.config_passwd)
+            except ValueError:
+                QMessageBox.question(self, 'Incorrect Encryption Password',
+                                           "The password provided will not decrypt the settings.",
+                                           QMessageBox.Ok)
 
         self.vc = veracross_api.Veracross(self.c)
         self.ls = lightspeed_api.Lightspeed(self.c)
@@ -723,6 +723,11 @@ class Main(QMainWindow):
         if len(self.ui.txt_CodeReturned.text()) > 0:
             token = self.ls.get_authorization_token(self.ui.txt_CodeReturned.text())
             self.ui.txt_AuthorizeReturnedRefreshToken.setText(str(token))
+            self.ui.txt_RefreshToken.setText(token)
+            QMessageBox.question(self, 'Application Authorized',
+                                 "Application is now authorized with your Lightspeed account.",
+                                 QMessageBox.Ok)
+            self.save_settings_button()
 
     def debug_append_log(self, text, level):
         """

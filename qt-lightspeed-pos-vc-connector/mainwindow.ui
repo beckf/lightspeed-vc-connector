@@ -736,52 +736,17 @@ max-height: 16px;
      <attribute name="title">
       <string>Authorize App</string>
      </attribute>
-     <widget class="QLabel" name="lbl_AuthorizeApp">
-      <property name="geometry">
-       <rect>
-        <x>260</x>
-        <y>20</y>
-        <width>91</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
-      <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;a href=&quot;https://cloud.lightspeedapp.com/oauth/authorize.php?scope=employee:all&amp;amp;response_type=code&amp;amp;client_id=__CLIENT_ID__&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Authorize Link&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::RichText</enum>
-      </property>
-      <property name="openExternalLinks">
-       <bool>true</bool>
-      </property>
-      <property name="textInteractionFlags">
-       <set>Qt::TextBrowserInteraction</set>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="txt_CodeReturned">
-      <property name="geometry">
-       <rect>
-        <x>160</x>
-        <y>100</y>
-        <width>301</width>
-        <height>21</height>
-       </rect>
-      </property>
-     </widget>
      <widget class="QLabel" name="lbl_AuthorizeCodeReturned">
       <property name="geometry">
        <rect>
-        <x>200</x>
-        <y>40</y>
-        <width>211</width>
-        <height>61</height>
+        <x>100</x>
+        <y>60</y>
+        <width>421</width>
+        <height>191</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Code Returned&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Copy and Paste from URL&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;To Authorize App&lt;/span&gt;&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Enter Lightspeed Developer Client ID, Developer Secret, and Lightspeed Account Number into the Settings Tab.&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;Click Authorize&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="textFormat">
        <enum>Qt::RichText</enum>
@@ -801,48 +766,6 @@ max-height: 16px;
       </property>
       <property name="text">
        <string>Authorize</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="txt_AuthorizeReturnedRefreshToken">
-      <property name="geometry">
-       <rect>
-        <x>160</x>
-        <y>170</y>
-        <width>301</width>
-        <height>21</height>
-       </rect>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_15">
-      <property name="geometry">
-       <rect>
-        <x>160</x>
-        <y>150</y>
-        <width>301</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;LS Refresh Token Returned&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_16">
-      <property name="geometry">
-       <rect>
-        <x>160</x>
-        <y>200</y>
-        <width>301</width>
-        <height>141</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::RichText</enum>
-      </property>
-      <property name="wordWrap">
-       <bool>true</bool>
       </property>
      </widget>
     </widget>

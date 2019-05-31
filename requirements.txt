@@ -16,9 +16,11 @@ pycparser==2.19
 PyInstaller==3.4
 PyQt5==5.12.2
 PyQt5-sip==4.19.17
+PyQtWebEngine==5.12.1
 pytz==2019.1
 PyYAML==5.1
 requests==2.22.0
 shellescape==3.4.1
+sip==4.19.8
 six==1.12.0
 urllib3==1.25.3

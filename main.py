@@ -94,6 +94,9 @@ class Main(QMainWindow):
         self.debug_append_log("Multithreading enabled with maximum %d threads." % self.threadpool.maxThreadCount(),
                               "info")
 
+        # Output some debug stuff for cmdline
+        print("CWD: " + (os.path.abspath(os.__file__)) )
+
         # Gather Config
         if config.check_enc() is True:
             self.config_passwd, ok = QInputDialog.getText(None,

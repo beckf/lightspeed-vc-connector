@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'qt-lightspeed-pos-vc-connector/mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.12.2
 #
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -356,35 +357,14 @@ class Ui_MainWindow(object):
         self.tabs.addTab(self.tab, "")
         self.tab_Authorize = QtWidgets.QWidget()
         self.tab_Authorize.setObjectName("tab_Authorize")
-        self.lbl_AuthorizeApp = QtWidgets.QLabel(self.tab_Authorize)
-        self.lbl_AuthorizeApp.setGeometry(QtCore.QRect(260, 20, 91, 20))
-        self.lbl_AuthorizeApp.setStyleSheet("")
-        self.lbl_AuthorizeApp.setTextFormat(QtCore.Qt.RichText)
-        self.lbl_AuthorizeApp.setOpenExternalLinks(True)
-        self.lbl_AuthorizeApp.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
-        self.lbl_AuthorizeApp.setObjectName("lbl_AuthorizeApp")
-        self.txt_CodeReturned = QtWidgets.QLineEdit(self.tab_Authorize)
-        self.txt_CodeReturned.setGeometry(QtCore.QRect(160, 100, 301, 21))
-        self.txt_CodeReturned.setObjectName("txt_CodeReturned")
         self.lbl_AuthorizeCodeReturned = QtWidgets.QLabel(self.tab_Authorize)
-        self.lbl_AuthorizeCodeReturned.setGeometry(QtCore.QRect(200, 40, 211, 61))
+        self.lbl_AuthorizeCodeReturned.setGeometry(QtCore.QRect(100, 60, 421, 191))
         self.lbl_AuthorizeCodeReturned.setTextFormat(QtCore.Qt.RichText)
         self.lbl_AuthorizeCodeReturned.setWordWrap(True)
         self.lbl_AuthorizeCodeReturned.setObjectName("lbl_AuthorizeCodeReturned")
         self.btn_Authorize = QtWidgets.QPushButton(self.tab_Authorize)
         self.btn_Authorize.setGeometry(QtCore.QRect(250, 350, 121, 24))
         self.btn_Authorize.setObjectName("btn_Authorize")
-        self.txt_AuthorizeReturnedRefreshToken = QtWidgets.QLineEdit(self.tab_Authorize)
-        self.txt_AuthorizeReturnedRefreshToken.setGeometry(QtCore.QRect(160, 170, 301, 21))
-        self.txt_AuthorizeReturnedRefreshToken.setObjectName("txt_AuthorizeReturnedRefreshToken")
-        self.label_15 = QtWidgets.QLabel(self.tab_Authorize)
-        self.label_15.setGeometry(QtCore.QRect(160, 150, 301, 20))
-        self.label_15.setObjectName("label_15")
-        self.label_16 = QtWidgets.QLabel(self.tab_Authorize)
-        self.label_16.setGeometry(QtCore.QRect(160, 200, 301, 141))
-        self.label_16.setTextFormat(QtCore.Qt.RichText)
-        self.label_16.setWordWrap(True)
-        self.label_16.setObjectName("label_16")
         self.tabs.addTab(self.tab_Authorize, "")
         self.tab_License = QtWidgets.QWidget()
         self.tab_License.setObjectName("tab_License")
@@ -441,7 +421,7 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(6)
+        self.tabs.setCurrentIndex(5)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -517,11 +497,8 @@ class Ui_MainWindow(object):
         self.btn_ChangeEncPassword.setText(_translate("MainWindow", "Change Password"))
         self.label_17.setText(_translate("MainWindow", "Change Settings Encryption Password"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab), _translate("MainWindow", "Password"))
-        self.lbl_AuthorizeApp.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><a href=\"https://cloud.lightspeedapp.com/oauth/authorize.php?scope=employee:all&amp;response_type=code&amp;client_id=__CLIENT_ID__\"><span style=\" text-decoration: underline; color:#0000ff;\">Authorize Link</span></a></p></body></html>"))
-        self.lbl_AuthorizeCodeReturned.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">Code Returned</p><p align=\"center\">Copy and Paste from URL</p></body></html>"))
+        self.lbl_AuthorizeCodeReturned.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-weight:600;\">To Authorize App</span></p><p align=\"center\">Enter Lightspeed Developer Client ID, Developer Secret, and Lightspeed Account Number into the Settings Tab.</p><p align=\"center\">Click Authorize</p></body></html>"))
         self.btn_Authorize.setText(_translate("MainWindow", "Authorize"))
-        self.label_15.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">LS Refresh Token Returned</p></body></html>"))
-        self.label_16.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">Copy and paste the refresh token returned from Lightspeed into your Refresh Token setting on the settings tab. </p><p align=\"center\">Be sure to update the account number from Lightspeed as well.</p></body></html>"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab_Authorize), _translate("MainWindow", "Authorize App"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab_License), _translate("MainWindow", "License"))
         self.lbl_Icon.setText(_translate("MainWindow", "icon"))
@@ -529,4 +506,5 @@ class Ui_MainWindow(object):
         self.btn_SaveLog.setText(_translate("MainWindow", "Save Log"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
+
 

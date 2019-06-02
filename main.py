@@ -1,10 +1,12 @@
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
+from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from mainwindow import Ui_MainWindow
 import veracross_api
 import lightspeed_api
-import sys, getopt
+import sys
 import os
 import datetime
 import pytz
@@ -12,9 +14,7 @@ import config
 import csv
 from decimal import Decimal, ROUND_HALF_UP
 import images
-from urllib.parse import quote
 import traceback
-import requests
 
 
 class Worker(QRunnable):
@@ -51,6 +51,39 @@ class WorkerSignals(QObject):
     progress = pyqtSignal(int)
 
 
+class AuthorizeLS(QMainWindow):
+    def __init__(self, auth_url):
+        QMainWindow.__init__(self)
+        self.auth_url = auth_url
+        self.page = QWebEnginePage()
+        self.view = QWebEngineView()
+        self.view.setPage(self.page)
+        self.interceptor = AuthCodeInterceptor()
+        self.page.profile().setRequestInterceptor(self.interceptor)
+        self.view.setUrl(QUrl(self.auth_url))
+        self.view.show()
+
+    def check_code(self):
+        return self.interceptor.code
+
+
+class AuthCodeInterceptor(QWebEngineUrlRequestInterceptor):
+    code_returned = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+
+        self.code = ""
+
+    def interceptRequest(self, info):
+        url = info.firstPartyUrl().toString()
+
+        if "localhost" in url:
+            code = url.split("code=")[1]
+            self.code = code
+            self.code_returned.emit()
+
+
 class Main(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
@@ -60,6 +93,9 @@ class Main(QMainWindow):
         self.threadpool = QThreadPool()
         self.debug_append_log("Multithreading enabled with maximum %d threads." % self.threadpool.maxThreadCount(),
                               "info")
+
+        # Output some debug stuff for cmdline
+        print("CWD: " + (os.path.abspath(os.__file__)) )
 
         # Gather Config
         if config.check_enc() is True:
@@ -75,13 +111,12 @@ class Main(QMainWindow):
                                                           QLineEdit.Password)
 
         if ok and self.config_passwd:
-            print("password=%s" % self.config_passwd)
-        try:
-            self.c = config.load_settings("config", self.config_passwd)
-        except ValueError:
-            QMessageBox.question(self, 'Incorrect Encryption Password',
-                                       "The password provided will not decrypt the settings.",
-                                       QMessageBox.Ok)
+            try:
+                self.c = config.load_settings("config", self.config_passwd)
+            except ValueError:
+                QMessageBox.question(self, 'Incorrect Encryption Password',
+                                           "The password provided will not decrypt the settings.",
+                                           QMessageBox.Ok)
 
         self.vc = veracross_api.Veracross(self.c)
         self.ls = lightspeed_api.Lightspeed(self.c)
@@ -146,9 +181,6 @@ class Main(QMainWindow):
             self.ui.txt_VCAPIURL.setText(self.c["vcurl"])
         if "client_id" in self.c.keys():
             self.ui.txt_LSDevelID.setText(self.c["client_id"])
-            self.ui.lbl_AuthorizeApp.setText("<a href=\"https://cloud.lightspeedapp.com/oauth/authorize.php"
-                                             "?response_type=code&client_id={}&scope=employee:all\">"
-                                             "Authorize Link</a>".format(self.c["client_id"]))
         if "client_secret" in self.c.keys():
             self.ui.txt_DevelSecret.setText(self.c["client_secret"])
         if "refresh_token" in self.c.keys():
@@ -722,9 +754,28 @@ class Main(QMainWindow):
         Authorize App
         :return:
         """
-        if len(self.ui.txt_CodeReturned.text()) > 0:
-            token = self.ls.get_authorization_token(self.ui.txt_CodeReturned.text())
-            self.ui.txt_AuthorizeReturnedRefreshToken.setText(str(token))
+
+        if len(self.c["client_id"]) > 0:
+            self.auth_url = "https://cloud.lightspeedapp.com/oauth/authorize.php?" \
+                                             "response_type=code&client_id={}&scope=employee:all".format(self.c["client_id"])
+            self.authorize_window = AuthorizeLS(self.auth_url)
+            self.authorize_window.interceptor.code_returned.connect(self.authorization_complete)
+
+    @pyqtSlot()
+    def authorization_complete(self):
+        code = self.authorize_window.interceptor.code
+        self.authorize_window.view.hide()
+        self.debug_append_log('Authorization Code Returned: ' + code, "info")
+
+        if len(code) > 0:
+             token = self.ls.get_authorization_token(code)
+             self.debug_append_log('Refresh Token Returned: ' + token, "info")
+             self.ui.txt_RefreshToken.setText(token)
+             QMessageBox.question(self, 'Application Authorized with Lightspeed',
+                                  "Application is now authorized with your Lightspeed account. "
+                                  "Please restart application.",
+                                  QMessageBox.Ok)
+             self.save_settings_button()
 
     def debug_append_log(self, text, level):
         """
@@ -752,9 +803,13 @@ class Main(QMainWindow):
     def save_log_to_file(self):
         log_dir = QFileDialog.getExistingDirectory(self, 'Select Directory to Save Log')
         filename = log_dir + str("/LSVCConnector.log")
-        filepath = open(filename, 'w')
-        with filepath:
-            filepath.write(self.ui.txtb_SyncLog.toPlainText())
+        try:
+            if os.path.isdir(log_dir):
+                filepath = open(filename, 'w')
+                with filepath:
+                    filepath.write(self.ui.txtb_SyncLog.toPlainText())
+        except:
+            self.debug_append_log("Unable to save log file.", "info")
 
     def save_settings_button(self):
         """

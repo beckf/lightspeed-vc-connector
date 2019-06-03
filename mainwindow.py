@@ -369,10 +369,13 @@ class Ui_MainWindow(object):
         self.tab_License = QtWidgets.QWidget()
         self.tab_License.setObjectName("tab_License")
         self.textBrowser_License = QtWidgets.QTextBrowser(self.tab_License)
-        self.textBrowser_License.setGeometry(QtCore.QRect(10, 10, 601, 371))
+        self.textBrowser_License.setGeometry(QtCore.QRect(10, 40, 601, 341))
         self.textBrowser_License.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.textBrowser_License.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn)
         self.textBrowser_License.setObjectName("textBrowser_License")
+        self.label_VersionInfo = QtWidgets.QLabel(self.tab_License)
+        self.label_VersionInfo.setGeometry(QtCore.QRect(10, 10, 601, 20))
+        self.label_VersionInfo.setObjectName("label_VersionInfo")
         self.tabs.addTab(self.tab_License, "")
         self.txtb_SyncLog = QtWidgets.QTextEdit(self.centralWidget)
         self.txtb_SyncLog.setGeometry(QtCore.QRect(20, 80, 631, 201))
@@ -421,7 +424,7 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(5)
+        self.tabs.setCurrentIndex(6)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -500,6 +503,7 @@ class Ui_MainWindow(object):
         self.lbl_AuthorizeCodeReturned.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\"><span style=\" font-weight:600;\">To Authorize App</span></p><p align=\"center\">Enter Lightspeed Developer Client ID, Developer Secret, and Lightspeed Account Number into the Settings Tab.</p><p align=\"center\">Click Authorize</p></body></html>"))
         self.btn_Authorize.setText(_translate("MainWindow", "Authorize"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab_Authorize), _translate("MainWindow", "Authorize App"))
+        self.label_VersionInfo.setText(_translate("MainWindow", "Version Info"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab_License), _translate("MainWindow", "License"))
         self.lbl_Icon.setText(_translate("MainWindow", "icon"))
         self.lbl_SyncLog.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:18pt; font-weight:600;\">Log</span></p></body></html>"))

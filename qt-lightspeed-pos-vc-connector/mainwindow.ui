@@ -80,7 +80,7 @@ max-height: 16px;
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>5</number>
+     <number>6</number>
     </property>
     <property name="usesScrollButtons">
      <bool>false</bool>
@@ -777,9 +777,9 @@ max-height: 16px;
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>10</y>
+        <y>40</y>
         <width>601</width>
-        <height>371</height>
+        <height>341</height>
        </rect>
       </property>
       <property name="verticalScrollBarPolicy">
@@ -787,6 +787,19 @@ max-height: 16px;
       </property>
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOn</enum>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_VersionInfo">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>601</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Version Info</string>
       </property>
      </widget>
     </widget>

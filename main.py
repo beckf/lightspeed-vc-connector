@@ -95,7 +95,11 @@ class Main(QMainWindow):
                               "info")
 
         # Output some debug stuff for cmdline
-        print("CWD: " + (os.path.abspath(os.__file__)) )
+        try:
+            self.working_dir = sys._MEIPASS
+        except AttributeError:
+            self.working_dir = os.getcwd()
+        print("CWD: " + self.working_dir)
 
         # Gather Config
         if config.check_enc() is True:
@@ -205,6 +209,9 @@ class Main(QMainWindow):
 
         # Get License
         self.get_license()
+
+        # Get Version
+        self.get_version()
 
     def create_update_customer_worker(self):
         """
@@ -754,12 +761,16 @@ class Main(QMainWindow):
         Authorize App
         :return:
         """
-
-        if len(self.c["client_id"]) > 0:
-            self.auth_url = "https://cloud.lightspeedapp.com/oauth/authorize.php?" \
-                                             "response_type=code&client_id={}&scope=employee:all".format(self.c["client_id"])
-            self.authorize_window = AuthorizeLS(self.auth_url)
-            self.authorize_window.interceptor.code_returned.connect(self.authorization_complete)
+        try:
+            if len(self.c["client_id"]) > 0:
+                self.auth_url = "https://cloud.lightspeedapp.com/oauth/authorize.php?" \
+                                                 "response_type=code&client_id={}&scope=employee:all".format(self.c["client_id"])
+                self.authorize_window = AuthorizeLS(self.auth_url)
+                self.authorize_window.interceptor.code_returned.connect(self.authorization_complete)
+        except:
+            QMessageBox.question(self, 'Authorization Failed',
+                                 "Make sure Lightspeed developer client id, secret, and account number has been saved.",
+                                 QMessageBox.Ok)
 
     @pyqtSlot()
     def authorization_complete(self):
@@ -854,15 +865,20 @@ class Main(QMainWindow):
 
     def get_license(self):
         try:
-            working_dir = sys._MEIPASS
-        except AttributeError:
-            working_dir = os.getcwd()
-        try:
-            file = os.path.join(working_dir, "LICENSE")
+            file = os.path.join(self.working_dir, "LICENSE")
             r = open(file, "r")
             self.ui.textBrowser_License.setText(r.read())
         except:
             self.ui.textBrowser_License.setText("Unable to read license file.")
+
+    def get_version(self):
+        try:
+            file = os.path.join(self.working_dir, "VERSION")
+            r = open(file, "r")
+            txt = "Version: " + r.read()
+            self.ui.label_VersionInfo.setText(txt)
+        except:
+            self.ui.label_VersionInfo.setText("Version Unknown")
 
 
 if __name__ == '__main__':

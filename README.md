@@ -55,13 +55,8 @@ to copy/paste in step 10. You will copy/paste the key show after the equals sign
 
 6) Click Save Settings and restart the application.
 
-7) Go to the Authorize Tab and click the Authorize link.  Login to LS using your admin login id and password.
+7) Go to the Authorize Tab and click the Authorize Button.  Login to LS using your admin login id and password.
 
-8) Grant your application access to the account.  When granted, if you used localhost as the redirect, you will see an error not found page.  
-In the URL copy the token after the equals sign and paste this into the first text box. You must complete the next step within 30 seconds.  
+8) Grant your application access to the account. 
 
-9) Click Authorize.
-
-10) Copy and paste the returned Refresh Token from the Authorize Tab to the settings tab on the LS Refresh Token field.
-
-11) Click Save settings.
+10) Restart the application.

@@ -258,8 +258,9 @@ class Main(QMainWindow):
             return None
 
         for i in vcdata:
-            if str(i["current_grade"]) == self.ui.combo_SyncGradeLevel.currentText() or \
+            if ("current_grade" in i and i["current_grade"] == self.ui.combo_SyncGradeLevel.currentText()) or \
                     self.ui.combo_SyncGradeLevel.currentText() == "None":
+
                 hh = self.vc.pull("households/" + str(i["household_fk"]))
                 h = hh["household"]
                 param = dict(load_relations='all', limit=1, companyRegistrationNumber=str(i["person_pk"]))

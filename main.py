@@ -177,6 +177,12 @@ class Main(QMainWindow):
         self.ui.dateEdit_EndExportRange.setDateTime(QDateTime.currentDateTime())
         self.ui.dateEdit_SyncUpdatedAfterDate.setDateTime(QDateTime.currentDateTime())
 
+        # Keyboard Shortcuts
+        self.key_reveal_hidden_settings = QShortcut(QKeySequence("Ctrl+Shift+R"), self)
+        self.key_reveal_hidden_settings.activated.connect(self.reveal_hidden)
+
+
+
         if "vcuser" in self.c.keys():
             self.ui.txt_VCUser.setText(self.c["vcuser"])
         if "vcpass" in self.c.keys():
@@ -880,6 +886,14 @@ class Main(QMainWindow):
             self.ui.label_VersionInfo.setText(txt)
         except:
             self.ui.label_VersionInfo.setText("Version Unknown")
+
+    def reveal_hidden(self):
+        self.debug_append_log("Revealing hidden settings!", "info")
+        self.ui.txt_RefreshToken.setEchoMode(QLineEdit.Normal)
+        self.ui.txt_DevelSecret.setEchoMode(QLineEdit.Normal)
+        self.ui.txt_LSDevelID.setEchoMode(QLineEdit.Normal)
+        self.ui.txt_VCUser.setEchoMode(QLineEdit.Normal)
+        self.ui.txt_VCPass.setEchoMode(QLineEdit.Normal)
 
 
 if __name__ == '__main__':

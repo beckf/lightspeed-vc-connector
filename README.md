@@ -43,28 +43,30 @@ Gift Cards all together or do not use the credit account as a way to purchase th
 ### How to Get Started
 1) Create two CustomerTypes in your Lightspeed shop for Veracross Students and Faculty named **Student** and **FacultyStaff**
 
-2) [Signup with Lightspeed OAuth](https://cloud.lightspeedapp.com/oauth/register.php).
+2) Create two custom fields in Lightspeed, both Customer Text fields. One named **Veracross ID** and the other named **Last Sync**
+
+3) [Signup with Lightspeed OAuth](https://cloud.lightspeedapp.com/oauth/register.php).
 * You will run the application under your own Lightspeed developer account/application.
 * Be sure to set the redirect URI to http://localhost . This will leave the refresh token in the browser window for you 
 to copy/paste in step 10. You will copy/paste the key show after the equals sign in the URL.
 
 ![alt text](images/ls_oauth_signup.png "LS OAuth")
 
-3) Obtain Veracross API credentials from VC Account Rep.
+4) Obtain Veracross API credentials from VC Account Rep.
     
-4) Run the application.  You will be prompted for a password.  This password will be used for encrypting the settings file.
+5) Run the application.  You will be prompted for a password.  This password will be used for encrypting the settings file.
 
-5) On the settings tab, enter:
+6) On the settings tab, enter:
 * LS Account ID Number (Click Username when logged into Lightspeed)
 * LS Developer Client Developer ID
 * LS Developer Client Secret
 * VC Username
 * VC Password
 
-6) Click Save Settings and restart the application.
+7) Click Save Settings and restart the application.
 
-7) Go to the Authorize Tab and click the Authorize Button.  Login to LS using your admin login id and password.
+8) Go to the Authorize Tab and click the Authorize Button.  Login to LS using your admin login id and password.
 
-8) Grant your application access to the account. 
+9) Grant your application access to the account. 
 
 10) Restart the application.

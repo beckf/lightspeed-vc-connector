@@ -10,13 +10,21 @@ This is a PyQT application developed to provide integration between Veracross an
 * Delete customers that are no longer in Veracross and do not have a credit balance.
 * Export charges from Lightspeed in a CSV format that is usable by VC.
 * Export charges by individual sale items, or credit balance total.
-* Clear charge accounts back to zero by applying an exact credit after exporting.
+* Clear charge accounts back to zero by applying an exact credit after exporting. The balance total is used to reverse the
+amount on account.
 * Easily authorize the application using your own Lightspeed Developer account and your Lightspeed Retail account.
 
 ### Known Issues
 * Export of individual SaleLines as opposed to the entire invoice total will round the totals differently. 
-SaleLines are stored in Lightspeed to the thousandth of a cent.  This means that the invoice total could be rounded 
-differently than each individual item.
+Currency fields are stored in Lightspeed to the thousandth of a cent.  This means that the invoice total could be rounded 
+differently than rounding each individual item.
+* Multi-Tender On Account Sales: Because each item on an invoice is not associated with the payment type, it is best to 
+avoid mixing credit account sales with other payment types.  The export will find all invoices that have been paid (fully/partially)
+by a credit account. So you run the risk of charging the customer twice. The amount paid with the other tender type will be ignored
+and imported into Veracross.
+* Selling Gift Cards on account has been known to cause problems when importing into Veracross.  It is best to either avoid 
+Gift Cards all together or do not use the credit account as a way to purchase the gift card. 
+
 
 ### Screenshots
 ![alt text](images/sync.png "Sync Tab")

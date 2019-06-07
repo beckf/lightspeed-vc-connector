@@ -239,151 +239,168 @@ class Main(QMainWindow):
 
         if self.ui.checkBox_SyncChangesAfterDate.isChecked():
             updated_after_ui = self.ui.dateEdit_SyncUpdatedAfterDate.date()
-            param = "updated_after={}".format(updated_after_ui.toPyDate())
+            ua_param = "updated_after={}".format(updated_after_ui.toPyDate())
         else:
-            param = False
+            ua_param = False
+            param = None
 
         if self.ui.combo_SyncVCUserType.currentText() == "Students":
             self.debug_append_log("Getting Veracross Students (Current)", "info")
+
+            # Add a grade level filter
+            if not self.ui.combo_SyncGradeLevel.currentText() == "None":
+                if "Other" in self.ui.combo_SyncGradeLevel.currentText():
+                    param = "grade_level=" + ",".join(str(x) for x in list(range(20, 30)))
+                else:
+                    param = "grade_level=" + self.ui.combo_SyncGradeLevel.currentText()
+
+            # Limit to only current students
             if param:
-                param = "option=2," + param
+                param = param + "&option=2"
             else:
                 param = "option=2"
+
+            # Add updated_after
+            if ua_param:
+                param = param + "&" + ua_param
+
+            self.debug_append_log("VC Parameters: " + param, "debug")
             vcdata = self.vc.pull("students", parameters=param)
             ls_customerTypeID = self.ls_customer_types["Student"]
+
         elif self.ui.combo_SyncVCUserType.currentText() == "Faculty Staff":
             self.debug_append_log("Getting Veracross Faculty Staff (Faculty and Staff)", "info")
             if param:
                 param_extended = param + "&roles=1,2"
+                self.debug_append_log("VC Parameters: " + param_extended, "debug")
                 vcdata = self.vc.pull("facstaff", parameters=param_extended)
             else:
                 vcdata = self.vc.pull("facstaff", "roles=1,2")
             ls_customerTypeID = self.ls_customer_types["FacultyStaff"]
+
         else:
             self.debug_append_log("Select Veracross User Type first.", "info")
             return None
 
         for i in vcdata:
-            if ("current_grade" in i and i["current_grade"] == self.ui.combo_SyncGradeLevel.currentText()) or \
-                    self.ui.combo_SyncGradeLevel.currentText() == "None":
 
-                hh = self.vc.pull("households/" + str(i["household_fk"]))
-                h = hh["household"]
-                param = dict(load_relations='all', limit=1, companyRegistrationNumber=str(i["person_pk"]))
-                check_current = self.ls.get("Customer", parameters=param)
+            hh = self.vc.pull("households/" + str(i["household_fk"]))
+            h = hh["household"]
+            param = dict(load_relations='all', limit=1, companyRegistrationNumber=str(i["person_pk"]))
+            check_current = self.ls.get("Customer", parameters=param)
 
-                vc_formatted = {'Customer':
-                                    {'firstName': '',
-                                     'lastName': i["last_name"],
-                                     'companyRegistrationNumber': i["person_pk"],
-                                     'customerTypeID': ls_customerTypeID,
-                                     'Contact': {
-                                         'custom': '',
-                                         'noEmail': 'false',
-                                         'noPhone': 'false',
-                                         'noMail': 'false',
-                                         'Emails': {
-                                             'ContactEmail': {
-                                                 'address': i["email_1"],
-                                                 'useType': 'Primary'
-                                             }
-                                         },
-                                         'Addresses': {
-                                             'ContactAddress': {
-                                                 'address1': h["address_1"],
-                                                 'address2': h["address_2"],
-                                                 'city': h["city"],
-                                                 'state': h["state_province"],
-                                                 'zip': h["postal_code"],
-                                                 'country': h["country"],
-                                                 'countryCode': '',
-                                                 'stateCode': ''
-                                             }
+            vc_formatted = {'Customer':
+                                {'firstName': '',
+                                 'lastName': i["last_name"],
+                                 'companyRegistrationNumber': i["person_pk"],
+                                 'customerTypeID': ls_customerTypeID,
+                                 'Contact': {
+                                     'custom': '',
+                                     'noEmail': 'false',
+                                     'noPhone': 'false',
+                                     'noMail': 'false',
+                                     'Emails': {
+                                         'ContactEmail': {
+                                             'address': i["email_1"],
+                                             'useType': 'Primary'
                                          }
                                      },
-                                     'CreditAccount': {
-                                         'creditLimit': '5000.00'
-                                     },
-                                     'CustomFieldValues': {
-                                         'CustomFieldValue': [{
-                                             'customFieldID': '1',
-                                             'value': i["person_pk"]
-                                         }, {
-                                             'customFieldID': '2',
-                                             'value': str(datetime.datetime.now())
+                                     'Addresses': {
+                                         'ContactAddress': {
+                                             'address1': h["address_1"],
+                                             'address2': h["address_2"],
+                                             'city': h["city"],
+                                             'state': h["state_province"],
+                                             'zip': h["postal_code"],
+                                             'country': h["country"],
+                                             'countryCode': '',
+                                             'stateCode': ''
                                          }
-                                         ]}
                                      }
-                                }
-                # Update data to use correct nick name format from VC.
+                                 },
+                                 'CreditAccount': {
+                                     'creditLimit': '5000.00'
+                                 },
+                                 'CustomFieldValues': {
+                                     'CustomFieldValue': [{
+                                         'customFieldID': '1',
+                                         'value': i["person_pk"]
+                                     }, {
+                                         'customFieldID': '2',
+                                         'value': str(datetime.datetime.now())
+                                     }
+                                     ]}
+                                 }
+                            }
+            # Update data to use correct nick name format from VC.
+            if 'nick_first_name' in i:
+                vc_formatted['Customer']['firstName'] = i['nick_first_name']
+            elif 'first_nick_name' in i:
+                vc_formatted['Customer']['firstName'] = i['first_nick_name']
+
+            if int(check_current["@attributes"]["count"]) >= 1:
+
+                vc_person = dict()
+                ls_customer = dict()
+
+                # Format VC Data for comparison
+                vc_person["last_name"] = i["last_name"]
                 if 'nick_first_name' in i:
-                    vc_formatted['Customer']['firstName'] = i['nick_first_name']
+                    vc_person["first_name"] = i['nick_first_name']
                 elif 'first_nick_name' in i:
-                    vc_formatted['Customer']['firstName'] = i['first_nick_name']
-
-                if int(check_current["@attributes"]["count"]) >= 1:
-
-                    vc_person = dict()
-                    ls_customer = dict()
-
-                    # Format VC Data for comparison
-                    vc_person["last_name"] = i["last_name"]
-                    if 'nick_first_name' in i:
-                        vc_person["first_name"] = i['nick_first_name']
-                    elif 'first_nick_name' in i:
-                        vc_person["first_name"] = i['first_nick_name']
-                    vc_person["email"] = i["email_1"]
-                    vc_person["address_1"] = h["address_1"]
-                    if h["address_2"] is None:
-                        vc_person["address_2"] = ''
-                    else:
-                        vc_person["address_2"] = h["address_2"]
-                    vc_person["city"] = h["city"]
-                    vc_person["zip"] = h["postal_code"]
-                    vc_person["state"] = h["state_province"]
-
-                    # Format LS Data for comparison
-                    ls_customer["last_name"] = check_current["Customer"]["lastName"]
-                    ls_customer["first_name"] = check_current["Customer"]["firstName"]
-
-                    # Handle missing email addresses.
-                    try:
-                        ls_customer["email"] = check_current["Customer"]["Contact"]["Emails"]["ContactEmail"]["address"]
-                    except:
-                        ls_customer["email"] = ''
-
-                    # Handle missing mailing addresses
-                    try:
-                        ls_customer["address_1"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["address1"]
-                        ls_customer["address_2"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["address2"]
-                        ls_customer["city"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["city"]
-                        ls_customer["zip"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["zip"]
-                        ls_customer["state"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["state"]
-                    except:
-                        ls_customer["address_1"] = ''
-                        ls_customer["address_2"] = ''
-                        ls_customer["city"] = ''
-                        ls_customer["zip"] = ''
-                        ls_customer["state"] = ''
-
-                    # Compare the data
-                    if not ls_customer == vc_person:
-                        self.debug_append_log("Updating customer {} {}.".format(vc_formatted['Customer']['firstName'],
-                                                                                    vc_formatted['Customer']['lastName']),
-                                              "info")
-                        vc_formatted['Customer']['customerID'] = check_current['Customer']['customerID']
-                        self.ls.update("Customer/" + vc_formatted['Customer']['customerID'], vc_formatted["Customer"])
-                    else:
-                        self.debug_append_log("Record {} {} already up to date.".format(vc_formatted['Customer']['firstName'],
-                                                                                vc_formatted['Customer']['lastName']),
-                                              "info")
+                    vc_person["first_name"] = i['first_nick_name']
+                vc_person["email"] = i["email_1"]
+                vc_person["address_1"] = h["address_1"]
+                if h["address_2"] is None:
+                    vc_person["address_2"] = ''
                 else:
-                    # Add new user when not found in LS
-                    new_customer = self.ls.create("Customer", vc_formatted["Customer"])
-                    self.debug_append_log("New Customer # {} Added: {} {}".format(new_customer['Customer']['customerID'],
-                                                                                  new_customer['Customer']['firstName'],
-                                                                                  new_customer['Customer']['lastName']),
+                    vc_person["address_2"] = h["address_2"]
+                vc_person["city"] = h["city"]
+                vc_person["zip"] = h["postal_code"]
+                vc_person["state"] = h["state_province"]
+
+                # Format LS Data for comparison
+                ls_customer["last_name"] = check_current["Customer"]["lastName"]
+                ls_customer["first_name"] = check_current["Customer"]["firstName"]
+
+                # Handle missing email addresses.
+                try:
+                    ls_customer["email"] = check_current["Customer"]["Contact"]["Emails"]["ContactEmail"]["address"]
+                except:
+                    ls_customer["email"] = ''
+
+                # Handle missing mailing addresses
+                try:
+                    ls_customer["address_1"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["address1"]
+                    ls_customer["address_2"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["address2"]
+                    ls_customer["city"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["city"]
+                    ls_customer["zip"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["zip"]
+                    ls_customer["state"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["state"]
+                except:
+                    ls_customer["address_1"] = ''
+                    ls_customer["address_2"] = ''
+                    ls_customer["city"] = ''
+                    ls_customer["zip"] = ''
+                    ls_customer["state"] = ''
+
+                # Compare the data
+                if not ls_customer == vc_person:
+                    self.debug_append_log("Updating customer {} {}.".format(vc_formatted['Customer']['firstName'],
+                                                                                vc_formatted['Customer']['lastName']),
                                           "info")
+                    vc_formatted['Customer']['customerID'] = check_current['Customer']['customerID']
+                    self.ls.update("Customer/" + vc_formatted['Customer']['customerID'], vc_formatted["Customer"])
+                else:
+                    self.debug_append_log("Record {} {} already up to date.".format(vc_formatted['Customer']['firstName'],
+                                                                            vc_formatted['Customer']['lastName']),
+                                          "info")
+            else:
+                # Add new user when not found in LS
+                new_customer = self.ls.create("Customer", vc_formatted["Customer"])
+                self.debug_append_log("New Customer # {} Added: {} {}".format(new_customer['Customer']['customerID'],
+                                                                              new_customer['Customer']['firstName'],
+                                                                              new_customer['Customer']['lastName']),
+                                      "info")
 
     def delete_customer_worker(self):
         """

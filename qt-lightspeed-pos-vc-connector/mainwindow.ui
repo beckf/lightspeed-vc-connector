@@ -80,7 +80,7 @@ max-height: 16px;
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>6</number>
+     <number>0</number>
     </property>
     <property name="usesScrollButtons">
      <bool>false</bool>
@@ -102,7 +102,7 @@ max-height: 16px;
        <item row="3" column="0">
         <widget class="QLabel" name="label_19">
          <property name="text">
-          <string>Limit Sync to Grade Level</string>
+          <string>Filter Sync to Grade Level</string>
          </property>
         </widget>
        </item>
@@ -141,72 +141,67 @@ max-height: 16px;
          </item>
          <item>
           <property name="text">
-           <string>Kindergarten</string>
+           <string>Nursery, Pre-K, K, Other (20-29)</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Pre-Kindergarten</string>
+           <string>1</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Grade 1</string>
+           <string>2</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Grade 2</string>
+           <string>3</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Grade 3</string>
+           <string>4</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Grade 4</string>
+           <string>5</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Grade 5</string>
+           <string>6</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Grade 6</string>
+           <string>7</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Grade 7</string>
+           <string>8</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Grade 8</string>
+           <string>9</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Grade 9</string>
+           <string>10</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Grade 10</string>
+           <string>11</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Grade 11</string>
-          </property>
-         </item>
-         <item>
-          <property name="text">
-           <string>Grade 12</string>
+           <string>12</string>
           </property>
          </item>
         </widget>
@@ -242,7 +237,7 @@ max-height: 16px;
        <item row="4" column="0">
         <widget class="QLabel" name="label_27">
          <property name="text">
-          <string>Simulate Deleting Inactive Users</string>
+          <string>Only Simulate Deleting Inactive Users</string>
          </property>
         </widget>
        </item>

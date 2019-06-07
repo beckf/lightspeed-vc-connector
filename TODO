@@ -1,0 +1,1 @@
+* Refactor how parameters are handled in veracross_api.  So ugly right now.  Use dictionary like lightspeed

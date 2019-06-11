@@ -13,7 +13,7 @@ c = {'vcurl': 'https://api.veracross.com/XschoolshortnameX/v2',
         }
 
 import veracross_api as v
-vc = Veracross(c)
+vc = v.Veracross(c)
 data = vc.pull("facstaff")
 print(data)
 data = vc.pull("facstaff/99999")

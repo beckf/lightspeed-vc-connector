@@ -237,12 +237,11 @@ class Main(QMainWindow):
 
     def create_update_customer(self):
 
+        param = {}
+
         if self.ui.checkBox_SyncChangesAfterDate.isChecked():
             updated_after_ui = self.ui.dateEdit_SyncUpdatedAfterDate.date()
-            ua_param = "updated_after={}".format(updated_after_ui.toPyDate())
-        else:
-            ua_param = False
-            param = None
+            param.update({"updated_after": str(updated_after_ui.toPyDate())})
 
         if self.ui.combo_SyncVCUserType.currentText() == "Students":
             self.debug_append_log("Getting Veracross Students (Current)", "info")
@@ -250,32 +249,23 @@ class Main(QMainWindow):
             # Add a grade level filter
             if not self.ui.combo_SyncGradeLevel.currentText() == "None":
                 if "Other" in self.ui.combo_SyncGradeLevel.currentText():
-                    param = "grade_level=" + ",".join(str(x) for x in list(range(20, 30)))
+                    # Append non-standard grades to the grade_level param. 20-30
+                    param.update({"grade_level": ",".join(str(x) for x in list(range(20, 30)))})
                 else:
-                    param = "grade_level=" + self.ui.combo_SyncGradeLevel.currentText()
+                    param.update({"grade_level": self.ui.combo_SyncGradeLevel.currentText()})
 
             # Limit to only current students
-            if param:
-                param = param + "&option=2"
-            else:
-                param = "option=2"
+            param.update({"option": "2"})
 
-            # Add updated_after
-            if ua_param:
-                param = param + "&" + ua_param
-
-            self.debug_append_log("VC Parameters: " + param, "debug")
+            self.debug_append_log("VC Parameters: " + str(param), "debug")
             vcdata = self.vc.pull("students", parameters=param)
             ls_customerTypeID = self.ls_customer_types["Student"]
 
         elif self.ui.combo_SyncVCUserType.currentText() == "Faculty Staff":
             self.debug_append_log("Getting Veracross Faculty Staff (Faculty and Staff)", "info")
-            if param:
-                param_extended = param + "&roles=1,2"
-                self.debug_append_log("VC Parameters: " + param_extended, "debug")
-                vcdata = self.vc.pull("facstaff", parameters=param_extended)
-            else:
-                vcdata = self.vc.pull("facstaff", "roles=1,2")
+            param.update({"roles": "1,2"})
+            self.debug_append_log("VC Parameters: " + str(param), "debug")
+            vcdata = self.vc.pull("facstaff", parameters=param)
             ls_customerTypeID = self.ls_customer_types["FacultyStaff"]
 
         else:
@@ -286,8 +276,8 @@ class Main(QMainWindow):
 
             hh = self.vc.pull("households/" + str(i["household_fk"]))
             h = hh["household"]
-            param = dict(load_relations='all', limit=1, companyRegistrationNumber=str(i["person_pk"]))
-            check_current = self.ls.get("Customer", parameters=param)
+            lsparam = dict(load_relations='all', limit=1, companyRegistrationNumber=str(i["person_pk"]))
+            check_current = self.ls.get("Customer", parameters=lsparam)
 
             vc_formatted = {'Customer':
                                 {'firstName': '',
@@ -426,9 +416,9 @@ class Main(QMainWindow):
         self.debug_append_log("Checking for customers to delete.", "info")
 
         valid_vc_ids = []
-        for i in self.vc.pull("facstaff", "roles=1,2"):
+        for i in self.vc.pull("facstaff", parameters=dict(roles='1,2')):
             valid_vc_ids.append(i["person_pk"])
-        for i in self.vc.pull("students", "option=2"):
+        for i in self.vc.pull("students", parameters=dict(option="2")):
             valid_vc_ids.append(i["person_pk"])
 
         current_customers = self.ls.get("Customer", dict(load_relations="all"))

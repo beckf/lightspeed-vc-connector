@@ -230,7 +230,7 @@ class Lightspeed(object):
 
     def delete(self, source, parameters=None):
         """
-        Delete object from aPI
+        Delete object from API
         :param source: API Source
         :param parameters: Optional URL Parameters.
         :return: JSON Results

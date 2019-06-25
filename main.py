@@ -15,6 +15,7 @@ import csv
 from decimal import Decimal, ROUND_HALF_UP
 import images
 import traceback
+import update
 
 
 class Worker(QRunnable):
@@ -99,7 +100,6 @@ class Main(QMainWindow):
             self.working_dir = sys._MEIPASS
         except AttributeError:
             self.working_dir = os.getcwd()
-        print("CWD: " + self.working_dir)
 
         # Gather Config
         if config.check_enc() is True:
@@ -216,8 +216,19 @@ class Main(QMainWindow):
         # Get License
         self.get_license()
 
-        # Get Version
-        self.get_version()
+        # Get Version Info
+        self.version = update.Update()
+        try:
+            self.ui.label_VersionInfo.setText(self.version.current_version)
+        except:
+            self.ui.label_VersionInfo.setText("Version Unknown")
+
+        # Check for Updates
+        try:
+            if self.version.update_avail():
+                self.debug_append_log("Updated Version Available!", "info")
+        except:
+            self.debug_append_log("Error checking for updates.", "debug")
 
     def create_update_customer_worker(self):
         """
@@ -884,15 +895,6 @@ class Main(QMainWindow):
             self.ui.textBrowser_License.setText(r.read())
         except:
             self.ui.textBrowser_License.setText("Unable to read license file.")
-
-    def get_version(self):
-        try:
-            file = os.path.join(self.working_dir, "VERSION")
-            r = open(file, "r")
-            txt = "Version: " + r.read()
-            self.ui.label_VersionInfo.setText(txt)
-        except:
-            self.ui.label_VersionInfo.setText("Version Unknown")
 
     def reveal_hidden(self):
         self.debug_append_log("Revealing hidden settings!", "info")

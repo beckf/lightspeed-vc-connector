@@ -289,14 +289,14 @@ class Main(QMainWindow):
             h = hh["household"]
             lsparam = dict(load_relations='all', limit=1, companyRegistrationNumber=str(i["person_pk"]))
             check_current = self.ls.get("Customer", parameters=lsparam)
-
+            # Format data. First name will format later.
             vc_formatted = {'Customer':
                                 {'firstName': '',
                                  'lastName': i["last_name"],
                                  'companyRegistrationNumber': i["person_pk"],
                                  'customerTypeID': ls_customerTypeID,
                                  'Contact': {
-                                     'custom': '',
+                                     'custom': i["person_pk"],
                                      'noEmail': 'false',
                                      'noPhone': 'false',
                                      'noMail': 'false',
@@ -345,12 +345,19 @@ class Main(QMainWindow):
                 ls_customer = dict()
 
                 # Format VC Data for comparison
+                vc_person["personpk"] = str(i["person_pk"])
                 vc_person["last_name"] = i["last_name"]
                 if 'nick_first_name' in i:
                     vc_person["first_name"] = i['nick_first_name']
                 elif 'first_nick_name' in i:
                     vc_person["first_name"] = i['first_nick_name']
-                vc_person["email"] = i["email_1"]
+
+                # Handle missing email
+                if i["email_1"] is None:
+                    vc_person["email"] = ''
+                else:
+                    vc_person["email"] = i["email_1"]
+
                 vc_person["address_1"] = h["address_1"]
                 if h["address_2"] is None:
                     vc_person["address_2"] = ''
@@ -361,6 +368,11 @@ class Main(QMainWindow):
                 vc_person["state"] = h["state_province"]
 
                 # Format LS Data for comparison
+                try:
+                    ls_customer["personpk"] = str(check_current["Customer"]["Contact"]["custom"])
+                except:
+                    ls_customer["personpk"] = ""
+
                 ls_customer["last_name"] = check_current["Customer"]["lastName"]
                 ls_customer["first_name"] = check_current["Customer"]["firstName"]
 
@@ -383,6 +395,7 @@ class Main(QMainWindow):
                     ls_customer["city"] = ''
                     ls_customer["zip"] = ''
                     ls_customer["state"] = ''
+
 
                 # Compare the data
                 if not ls_customer == vc_person:

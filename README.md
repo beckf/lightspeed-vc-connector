@@ -8,11 +8,12 @@ This is a PyQT application developed to provide integration between Veracross an
 * Create and update customers that have been updated in VC after a specific date.
 * Create and update customers based on Veracross Grade Level.
 * Delete customers that are no longer in Veracross and do not have a credit balance.
-* Export charges from Lightspeed in a CSV format that is usable by VC.
+* Export charges from Lightspeed in a CSV format that is importable by VC.
 * Export charges by individual sale items, or credit balance total.
 * Clear charge accounts back to zero by applying an exact credit after exporting. The balance total is used to reverse the
 amount on account.
 * Easily authorize the application using your own Lightspeed Developer account and your Lightspeed Retail account.
+* Veracross ID stored in LS Custom field for looking up customers by barcode.
 
 ### Known Issues
 * Export of individual SaleLines as opposed to the entire invoice total will round the totals differently. 
@@ -47,8 +48,7 @@ Gift Cards all together or do not use the credit account as a way to purchase th
 
 3) [Signup with Lightspeed OAuth](https://cloud.lightspeedapp.com/oauth/register.php).
 * You will run the application under your own Lightspeed developer account/application.
-* Be sure to set the redirect URI to http://localhost . This will leave the refresh token in the browser window for you 
-to copy/paste in step 10. You will copy/paste the key show after the equals sign in the URL.
+* Be sure to set the redirect URI to http://localhost . This will leave the refresh token in the browser window for the app to capture.
 
 ![alt text](images/ls_oauth_signup.png "LS OAuth")
 
@@ -65,7 +65,7 @@ to copy/paste in step 10. You will copy/paste the key show after the equals sign
 
 7) Click Save Settings and restart the application.
 
-8) Go to the Authorize Tab and click the Authorize Button.  Login to LS using your admin login id and password.
+8) Go to the Authorize Tab and click the Authorize Button.  Login to Lightspeed using your admin login id and password.
 
 9) Grant your application access to the account. 
 

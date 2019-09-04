@@ -205,6 +205,9 @@ class Main(QMainWindow):
             self.ui.txt_ExportOptionsTransactionType.setText(self.c["vc_export_transaction_type"])
         if "vc_export_transaction_source" in self.c.keys():
             self.ui.txt_ExportOptionsTransactionSource.setText(self.c["vc_export_transaction_source"])
+        if "debug_export" in self.c.keys():
+            if self.c["debug_export"] is True:
+                self.ui.chk_DebugExport.setChecked(True)
 
         # Set Active Tab to Sync
         self.ui.tabs.setCurrentIndex(0)
@@ -496,6 +499,10 @@ class Main(QMainWindow):
             self.debug_append_log("Missing export folder location.", "info")
             self.select_export_directory()
 
+        # Warn about debudding
+        if self.ui.chk_DebugExport.isChecked():
+            self.debug_append_log("Export debugging enabled.", "info")
+
         # Notify UI
         self.debug_append_log("Export started for customer type: " + str(ct), "info")
 
@@ -550,7 +557,8 @@ class Main(QMainWindow):
 
             # Add debug fields if requested
             if self.ui.chk_DebugExport.isChecked():
-                f.append('timestamp')
+                f.append('debug_timestamp')
+                f.append('debug_shopID')
 
             saleline_export_data.append(f)
 
@@ -599,10 +607,12 @@ class Main(QMainWindow):
                                 # Debug fields
                                 if self.ui.chk_DebugExport.isChecked():
                                     saleline_single.append(str(i['timeStamp']))
+                                    saleline_single.append(str(i['shopID']))
 
                                 saleline_export_data.append(saleline_single)
                             except:
                                 self.debug_append_log("Unable to append multiple SaleLine data to CSV.", "info")
+                                self.debug_append_log("Debug Output: " + str(s), "debug")
                     else:
                         try:
                             if 'Item' in i["SaleLines"]["SaleLine"]:
@@ -629,11 +639,13 @@ class Main(QMainWindow):
                                 # Debug fields
                                 if self.ui.chk_DebugExport.isChecked():
                                     saleline_single.append(str(i["SaleLines"]["SaleLine"]['timeStamp']))
+                                    saleline_single.append(str(i["SaleLines"]["SaleLine"]['shopID']))
 
                                 saleline_export_data.append(saleline_single)
                         except:
                             self.debug_append_log("Unable to append single saleline for sale # " + str(i['saleID']),
                                                   "info")
+                            self.debug_append_log("Debug Output: " + str(i["SaleLines"]["SaleLine"]), "debug")
 
             try:
                 filename = str(self.ui.line_ExportFolder.text())
@@ -648,6 +660,7 @@ class Main(QMainWindow):
                         writer.writerow(row)
             except:
                 self.debug_append_log("Failed to export CSV salelines data.", "info")
+                self.debug_append_log(str(csv.Error), "debug")
                 return None
 
         # !! Account Balance Export !!
@@ -878,6 +891,12 @@ class Main(QMainWindow):
             "vc_export_transaction_type": self.ui.txt_ExportOptionsTransactionType.text(),
             "vc_export_transaction_source": self.ui.txt_ExportOptionsTransactionSource.text()
         }
+
+        if self.ui.chk_DebugExport.isChecked():
+            settings.update({"debug_export": True})
+        else:
+            settings.update({"debug_export": False})
+
         # Save settings
         config.save_settings(settings, "config", self.config_passwd)
         # Reload Settings

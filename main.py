@@ -125,22 +125,6 @@ class Main(QMainWindow):
         self.vc = veracross_api.Veracross(self.c)
         self.ls = lightspeed_api.Lightspeed(self.c)
 
-        # Shop Name
-        self.shop_name = self.get_shop_name()
-
-        # Timezone stuff
-        self.shop_timezone_name = self.get_timezone()
-        self.timezone = pytz.timezone(self.shop_timezone_name)
-        self.shop_timezone_utc_offset = datetime.datetime.now(self.timezone).strftime('%z')
-        self.shop_timezone_utc_offset_iso = self.shop_timezone_utc_offset[:3] + ":" + self.shop_timezone_utc_offset[3:]
-        self.debug_append_log("Found %s timezone for shop named %s." % (self.shop_timezone_name, self.shop_name),
-                              "info")
-
-        # Store data
-        self.export_dir = ""
-        self.ls_customer_types = dict()
-        self.ls_payment_types = dict()
-
         # Images
         self.ui.lbl_Icon.setPixmap(QPixmap(":/images/icon.png"))
 
@@ -209,12 +193,19 @@ class Main(QMainWindow):
             if self.c["debug_export"] is True:
                 self.ui.chk_DebugExport.setChecked(True)
 
-        # Set Active Tab to Sync
-        self.ui.tabs.setCurrentIndex(0)
+        # Store data
+        self.export_dir = ""
+        self.ls_customer_types = dict()
+        self.ls_payment_types = dict()
+        self.ls_shops = dict()
 
         # Get some initial LS Data
         self.get_customer_types()
         self.get_payment_types()
+        self.get_shops()
+
+        # Set Active Tab to Sync
+        self.ui.tabs.setCurrentIndex(0)
 
         # Get License
         self.get_license()
@@ -487,8 +478,27 @@ class Main(QMainWindow):
         Export Charges from LS in CSV
         :return:
         """
+        # Warn about debugging
+        if self.ui.chk_DebugExport.isChecked():
+            self.debug_append_log("Export debugging enabled.", "info")
+
+        # Set current Timezone
+        current_store = self.ui.combo_ExportShopSelect.currentText()
+        shop_timezone_name = self.ls_shops[current_store]["timeZone"]
+        timezone = pytz.timezone(shop_timezone_name)
+        shop_timezone_utc_offset = datetime.datetime.now(timezone).strftime('%z')
+        shop_timezone_utc_offset_iso = shop_timezone_utc_offset[:3] + ":" + shop_timezone_utc_offset[3:]
+        self.debug_append_log(
+            "Found %s timezone for shop named %s." % (shop_timezone_name, self.ls_shops[current_store]["name"]),
+            "info")
+
         ct = str(self.ui.combo_CustomerType.currentText())
         ct_id = self.ls_customer_types[ct]
+        self.debug_append_log("Filtering results to customerType %s, id %s" % (ct, ct_id), "debug")
+
+        shop = str(self.ui.combo_ExportShopSelect.currentText())
+        shop_id = self.ls_shops[shop]['shopID']
+        self.debug_append_log("Filtering results to shop %s, id %s" % (shop, shop_id), "debug")
 
         if self.ui.chk_ClearCharges.isChecked():
             pt = str(self.ui.combo_PaymentType.currentText())
@@ -498,10 +508,6 @@ class Main(QMainWindow):
         if len(self.ui.line_ExportFolder.text()) == 0:
             self.debug_append_log("Missing export folder location.", "info")
             self.select_export_directory()
-
-        # Warn about debudding
-        if self.ui.chk_DebugExport.isChecked():
-            self.debug_append_log("Export debugging enabled.", "info")
 
         # Notify UI
         self.debug_append_log("Export started for customer type: " + str(ct), "info")
@@ -527,7 +533,7 @@ class Main(QMainWindow):
                 parameters['timeStamp'] = '{},{}T00:00:00-04:00,{}T23:59:59{}'.format("><",
                                                                                       begin_date,
                                                                                       end_date,
-                                                                                      self.shop_timezone_utc_offset_iso)
+                                                                                      shop_timezone_utc_offset_iso)
                 self.debug_append_log("Querying Lightspeed \"Sales\" data point with parameters " + str(parameters),
                                       "debug")
                 salelines = self.ls.get("Sale", parameters=parameters)
@@ -583,8 +589,21 @@ class Main(QMainWindow):
                     if i['Customer']['customerTypeID'] != ct_id:
                         continue
 
+                    # Depending on how many items sold,
+                    # types of salelines are returned.
+                    # List of dictionaries and a single dictionary.
                     if isinstance(i['SaleLines']['SaleLine'], list):
                         for s in i['SaleLines']['SaleLine']:
+                            # Ignore this entry if it was not in the shop selected.
+                            try:
+                                if s['shopID'] != shop_id:
+                                    self.debug_append_log("ShopID for entry is not the shop that was requested, "
+                                                          "skipping entry: %s" % str(s), "debug")
+                                    continue
+                            except:
+                                self.debug_append_log("Unable to determine shopID for entry: %s." % s, "debug")
+                                continue
+                            # Format the entry to be added to our export file.
                             try:
                                 saleline_single = [str(i['Customer']['companyRegistrationNumber']),
                                                    str(i['Customer']['companyRegistrationNumber']),
@@ -616,6 +635,13 @@ class Main(QMainWindow):
                     else:
                         try:
                             if 'Item' in i["SaleLines"]["SaleLine"]:
+                                # Ignore this entry if it was not in the shop selected.
+                                if i["SaleLines"]["SaleLine"]["shopID"] != shop_id:
+                                    self.debug_append_log("ShopID for entry is not the shop that was requested, "
+                                                          "skipping entry: %s" % str(i["SaleLines"]["SaleLine"]),
+                                                          "debug")
+                                    continue
+                                # Format the entry to be added to our export file.
                                 saleline_single = [str(i['Customer']['companyRegistrationNumber']),
                                                    str(i['Customer']['companyRegistrationNumber']),
                                                    str(i['Customer']['firstName'] + " " + i['Customer']['lastName']),
@@ -791,21 +817,24 @@ class Main(QMainWindow):
         except:
             self.debug_append_log("Unable to set default payment type to Credit Account.", "info")
 
-    def get_timezone(self):
+    def get_shops(self):
         try:
-            shop_tz = self.ls.get("Shop")
-            return shop_tz["Shop"]["timeZone"]
+            shop = self.ls.get("Shop")
+            if isinstance(shop['Shop'], list):
+                for s in shop['Shop']:
+                    self.ls_shops[s["Shop"]["name"]] = s
+            else:
+                self.ls_shops[shop["Shop"]["name"]] = shop['Shop']
         except:
-            self.debug_append_log("Error getting shop timezone. Using UTC.", "info")
-            return "UTC"
+            self.debug_append_log("Error getting shop names.", "info")
 
-    def get_shop_name(self):
+        # Update Shops in UI
         try:
-            shop_tz = self.ls.get("Shop")
-            return shop_tz["Shop"]["name"]
+            self.ui.combo_ExportShopSelect.clear()
+            self.ui.combo_ExportShopSelect.addItems(self.ls_shops.keys())
         except:
-            self.debug_append_log("Error getting shop name.", "info")
-            return "Unknown Shop Name"
+            self.debug_append_log("Error adding shops to UI.", "info")
+            self.debug_append_log(str(self.ls_shops), "debug")
 
     def authorize_app(self):
         """

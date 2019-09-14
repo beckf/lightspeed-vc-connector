@@ -10,6 +10,7 @@ This is a PyQT application developed to provide integration between Veracross an
 * Delete customers that are no longer in Veracross and do not have a credit balance.
 * Export charges from Lightspeed in a CSV format that is importable by VC.
 * Export charges by individual sale items, or credit balance total.
+* Filter export of charges by individual shop.
 * Clear charge accounts back to zero by applying an exact credit after exporting. The balance total is used to reverse the
 amount on account.
 * Easily authorize the application using your own Lightspeed Developer account and your Lightspeed Retail account.

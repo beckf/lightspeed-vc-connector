@@ -822,7 +822,7 @@ class Main(QMainWindow):
             shop = self.ls.get("Shop")
             if isinstance(shop['Shop'], list):
                 for s in shop['Shop']:
-                    self.ls_shops[s["Shop"]["name"]] = s
+                    self.ls_shops[s["name"]] = s
             else:
                 self.ls_shops[shop["Shop"]["name"]] = shop['Shop']
         except:

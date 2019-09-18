@@ -492,10 +492,12 @@ class Main(QMainWindow):
             "Found %s timezone for shop named %s." % (shop_timezone_name, self.ls_shops[current_store]["name"]),
             "info")
 
+        # Customer Type
         ct = str(self.ui.combo_CustomerType.currentText())
         ct_id = self.ls_customer_types[ct]
         self.debug_append_log("Filtering results to customerType %s, id %s" % (ct, ct_id), "debug")
 
+        # Get selected shop
         shop = str(self.ui.combo_ExportShopSelect.currentText())
         shop_id = self.ls_shops[shop]['shopID']
         self.debug_append_log("Filtering results to shop %s, id %s" % (shop, shop_id), "debug")
@@ -691,7 +693,7 @@ class Main(QMainWindow):
 
         # !! Account Balance Export !!
         try:
-            # Get Customers with Balance on Account. Used to export balances and clear accounts.
+            # Get Customers with Balance on account. Used to export balances and clear accounts.
             customers = self.ls.get("Customer", parameters=dict(load_relations='["CreditAccount"]'))
         except:
             self.debug_append_log("Unable to get Customer data from Lightspeed.", "info")
@@ -725,7 +727,8 @@ class Main(QMainWindow):
                             self.clear_account_balances(int(i['customerID']),
                                                         float(i['CreditAccount']['balance']),
                                                         int(pt_id),
-                                                        int(i["creditAccountID"]))
+                                                        int(i["creditAccountID"]),
+                                                        int(shop_id))
 
         except:
             self.debug_append_log("Failed to format CSV data.", "info")
@@ -746,12 +749,12 @@ class Main(QMainWindow):
             self.debug_append_log("Failed to export CSV balance data.", "info")
             return None
 
-    def clear_account_balances(self, customerID, balance, paymentID, creditAccountID):
+    def clear_account_balances(self, customerID, balance, paymentID, creditAccountID, shop_id):
         try:
             formatted_request = {
                                 "employeeID": 1,
                                 "registerID": 1,
-                                "shopID": 1,
+                                "shopID": shop_id,
                                 "customerID": customerID,
                                 "completed": 'true',
                                 "SaleLines": {

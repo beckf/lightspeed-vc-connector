@@ -198,11 +198,13 @@ class Main(QMainWindow):
         self.ls_customer_types = dict()
         self.ls_payment_types = dict()
         self.ls_shops = dict()
+        self.ls_employee = dict()
 
         # Get some initial LS Data
         self.get_customer_types()
         self.get_payment_types()
         self.get_shops()
+        self.get_employees()
 
         # Set Active Tab to Sync
         self.ui.tabs.setCurrentIndex(0)
@@ -517,179 +519,178 @@ class Main(QMainWindow):
         # !! Sale Line Export !!
 
         # Export SaleLine Data
-        if self.ui.chk_ExportSaleLinesEnabled.isChecked():
-            begin_date_ui = self.ui.dateEdit_BeginExportRange.date()
-            begin_date = begin_date_ui.toPyDate()
-            end_date_ui = self.ui.dateEdit_EndExportRange.date()
-            end_date = end_date_ui.toPyDate()
+        begin_date_ui = self.ui.dateEdit_BeginExportRange.date()
+        begin_date = begin_date_ui.toPyDate()
+        end_date_ui = self.ui.dateEdit_EndExportRange.date()
+        end_date = end_date_ui.toPyDate()
 
-            if len(str(begin_date)) != 10 or len(str(end_date)) != 10:
-                self.debug_append_log("Invalid begin or end date.", "info")
-                self.debug_append_log(str(begin_date), "info")
-                return None
+        if len(str(begin_date)) != 10 or len(str(end_date)) != 10:
+            self.debug_append_log("Invalid begin or end date.", "info")
+            self.debug_append_log(str(begin_date), "info")
+            return None
 
-            try:
-                parameters = {}
-                parameters['load_relations'] = 'all'
-                parameters['completed'] = 'true'
-                parameters['timeStamp'] = '{},{}T00:00:00-04:00,{}T23:59:59{}'.format("><",
-                                                                                      begin_date,
-                                                                                      end_date,
-                                                                                      shop_timezone_utc_offset_iso)
-                self.debug_append_log("Querying Lightspeed \"Sales\" data point with parameters " + str(parameters),
-                                      "debug")
-                salelines = self.ls.get("Sale", parameters=parameters)
-            except:
-                salelines = None
-                self.debug_append_log("Unable to get SaleLine data.", "info")
+        try:
+            parameters = {}
+            parameters['load_relations'] = 'all'
+            parameters['completed'] = 'true'
+            parameters['timeStamp'] = '{},{}T00:00:00-04:00,{}T23:59:59{}'.format("><",
+                                                                                  begin_date,
+                                                                                  end_date,
+                                                                                  shop_timezone_utc_offset_iso)
+            self.debug_append_log("Querying Lightspeed \"Sales\" data point with parameters " + str(parameters),
+                                  "debug")
+            salelines = self.ls.get("Sale", parameters=parameters)
+        except:
+            salelines = None
+            self.debug_append_log("Unable to get SaleLine data.", "info")
 
-            saleline_export_data = []
+        saleline_export_data = []
 
-            # throw down some headers.
-            f = ['person_id',
-                 'customer_account_number',
-                 'customer_name',
-                 'transaction_source',
-                 'transaction_type',
-                 'school_year',
-                 'item_date',
-                 'catalog_item_fk',
-                 'description',
-                 'quantity',
-                 'unit_price',
-                 'purchase_amount',
-                 'tax_amount',
-                 'total_amount',
-                 'pos_transaction_id'
-                 ]
+        # throw down some headers.
+        f = ['person_id',
+             'customer_account_number',
+             'customer_name',
+             'transaction_source',
+             'transaction_type',
+             'school_year',
+             'item_date',
+             'catalog_item_fk',
+             'description',
+             'quantity',
+             'unit_price',
+             'purchase_amount',
+             'tax_amount',
+             'total_amount',
+             'pos_transaction_id'
+             ]
 
-            # Add debug fields if requested
-            if self.ui.chk_DebugExport.isChecked():
-                f.append('debug_timestamp')
-                f.append('debug_shopID')
+        # Add debug fields if requested
+        if self.ui.chk_DebugExport.isChecked():
+            f.append('debug_timestamp')
+            f.append('debug_shopID')
 
-            saleline_export_data.append(f)
+        saleline_export_data.append(f)
 
-            for i in salelines['Sale']:
-                # Does this invoice have a payment that is on account.
-                # Hopefully it is not a multi-tender transaction, but just in case...
+        for i in salelines['Sale']:
+            # Does this invoice have a payment that is on account.
+            # Hopefully it is not a multi-tender transaction, but just in case...
 
-                on_account = False
+            on_account = False
 
-                if 'SalePayments' in i:
-                    if isinstance(i['SalePayments']['SalePayment'], list):
-                        for p in i['SalePayments']['SalePayment']:
-                            if p['PaymentType']['code'] == 'SCA':
-                                on_account = True
-                    else:
-                        if i['SalePayments']['SalePayment']['PaymentType']['code'] == 'SCA':
+            if 'SalePayments' in i:
+                if isinstance(i['SalePayments']['SalePayment'], list):
+                    for p in i['SalePayments']['SalePayment']:
+                        if p['PaymentType']['code'] == 'SCA':
                             on_account = True
+                else:
+                    if i['SalePayments']['SalePayment']['PaymentType']['code'] == 'SCA':
+                        on_account = True
 
-                if 'SaleLines' in i and on_account is True:
+            if 'SaleLines' in i and on_account is True:
 
-                    # Check this is a customer we requested.
-                    if i['Customer']['customerTypeID'] != ct_id:
-                        continue
+                # Check this is a customer we requested.
+                if i['Customer']['customerTypeID'] != ct_id:
+                    continue
 
-                    # Depending on how many items sold,
-                    # types of salelines are returned.
-                    # List of dictionaries and a single dictionary.
-                    if isinstance(i['SaleLines']['SaleLine'], list):
-                        for s in i['SaleLines']['SaleLine']:
+                # Depending on how many items sold,
+                # types of salelines are returned.
+                # List of dictionaries and a single dictionary.
+                if isinstance(i['SaleLines']['SaleLine'], list):
+                    for s in i['SaleLines']['SaleLine']:
+                        # Ignore this entry if it was not in the shop selected.
+                        try:
+                            if s['shopID'] != shop_id:
+                                self.debug_append_log("ShopID for entry is not the shop that was requested, "
+                                                      "skipping entry: %s" % str(s), "debug")
+                                continue
+                        except:
+                            self.debug_append_log("Unable to determine shopID for entry: %s." % s, "debug")
+                            continue
+                        # Format the entry to be added to our export file.
+                        try:
+                            saleline_single = [str(i['Customer']['companyRegistrationNumber']),
+                                               str(i['Customer']['companyRegistrationNumber']),
+                                               str(i['Customer']['firstName'] + " " + i['Customer']['lastName']),
+                                               self.ui.txt_ExportOptionsTransactionSource.text(),
+                                               self.ui.txt_ExportOptionsTransactionType.text(),
+                                               self.ui.txt_ExportOptionsSchoolYear.text(),
+                                               str(i['timeStamp'][:10]),
+                                               self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
+                                               str(s['Item']['description']),
+                                               str(s['unitQuantity']),
+                                               Decimal(s['unitPrice']) -
+                                               (Decimal(s['calcLineDiscount']) / int(s['unitQuantity'])),
+                                               Decimal(s['displayableSubtotal']),
+                                               self.roundup_decimal(Decimal(s['calcTax1'])),
+                                               self.roundup_decimal(Decimal(s['calcTotal'])),
+                                               str(i['saleID'])
+                                               ]
+
+                            # Debug fields
+                            if self.ui.chk_DebugExport.isChecked():
+                                saleline_single.append(str(i['timeStamp']))
+                                saleline_single.append(str(i['shopID']))
+
+                            saleline_export_data.append(saleline_single)
+                        except:
+                            self.debug_append_log("Unable to append multiple SaleLine data to CSV.", "info")
+                            self.debug_append_log("Debug Output: " + str(s), "debug")
+                else:
+                    try:
+                        if 'Item' in i["SaleLines"]["SaleLine"]:
                             # Ignore this entry if it was not in the shop selected.
-                            try:
-                                if s['shopID'] != shop_id:
-                                    self.debug_append_log("ShopID for entry is not the shop that was requested, "
-                                                          "skipping entry: %s" % str(s), "debug")
-                                    continue
-                            except:
-                                self.debug_append_log("Unable to determine shopID for entry: %s." % s, "debug")
+                            if i["SaleLines"]["SaleLine"]["shopID"] != shop_id:
+                                self.debug_append_log("ShopID for entry is not the shop that was requested, "
+                                                      "skipping entry: %s" % str(i["SaleLines"]["SaleLine"]),
+                                                      "debug")
                                 continue
                             # Format the entry to be added to our export file.
-                            try:
-                                saleline_single = [str(i['Customer']['companyRegistrationNumber']),
-                                                   str(i['Customer']['companyRegistrationNumber']),
-                                                   str(i['Customer']['firstName'] + " " + i['Customer']['lastName']),
-                                                   self.ui.txt_ExportOptionsTransactionSource.text(),
-                                                   self.ui.txt_ExportOptionsTransactionType.text(),
-                                                   self.ui.txt_ExportOptionsSchoolYear.text(),
-                                                   str(i['timeStamp'][:10]),
-                                                   self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
-                                                   str(s['Item']['description']),
-                                                   str(s['unitQuantity']),
-                                                   Decimal(s['unitPrice']) -
-                                                   (Decimal(s['calcLineDiscount']) / int(s['unitQuantity'])),
-                                                   Decimal(s['displayableSubtotal']),
-                                                   self.roundup_decimal(Decimal(s['calcTax1'])),
-                                                   self.roundup_decimal(Decimal(s['calcTotal'])),
-                                                   str(i['saleID'])
-                                                   ]
+                            saleline_single = [str(i['Customer']['companyRegistrationNumber']),
+                                               str(i['Customer']['companyRegistrationNumber']),
+                                               str(i['Customer']['firstName'] + " " + i['Customer']['lastName']),
+                                               self.ui.txt_ExportOptionsTransactionSource.text(),
+                                               self.ui.txt_ExportOptionsTransactionType.text(),
+                                               self.ui.txt_ExportOptionsSchoolYear.text(),
+                                               str(i["SaleLines"]["SaleLine"]['timeStamp'][:10]),
+                                               self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
+                                               str(i["SaleLines"]["SaleLine"]['Item']['description']),
+                                               str(i["SaleLines"]["SaleLine"]['unitQuantity']),
+                                               Decimal(i["SaleLines"]["SaleLine"]['unitPrice']) -
+                                               (Decimal(i["SaleLines"]["SaleLine"]['calcLineDiscount']) /
+                                                int(i["SaleLines"]["SaleLine"]['unitQuantity'])),
+                                               Decimal(i["SaleLines"]["SaleLine"]['displayableSubtotal']),
+                                               self.roundup_decimal(
+                                                   Decimal(i["SaleLines"]["SaleLine"]['calcTax1'])),
+                                               self.roundup_decimal(
+                                                   Decimal(i["SaleLines"]["SaleLine"]['calcTotal'])),
+                                               str(i['saleID'])
+                                               ]
+                            # Debug fields
+                            if self.ui.chk_DebugExport.isChecked():
+                                saleline_single.append(str(i["SaleLines"]["SaleLine"]['timeStamp']))
+                                saleline_single.append(str(i["SaleLines"]["SaleLine"]['shopID']))
 
-                                # Debug fields
-                                if self.ui.chk_DebugExport.isChecked():
-                                    saleline_single.append(str(i['timeStamp']))
-                                    saleline_single.append(str(i['shopID']))
+                            saleline_export_data.append(saleline_single)
+                    except:
+                        self.debug_append_log("Unable to append single saleline for sale # " + str(i['saleID']),
+                                              "info")
+                        self.debug_append_log("Debug Output: " + str(i["SaleLines"]["SaleLine"]), "debug")
 
-                                saleline_export_data.append(saleline_single)
-                            except:
-                                self.debug_append_log("Unable to append multiple SaleLine data to CSV.", "info")
-                                self.debug_append_log("Debug Output: " + str(s), "debug")
-                    else:
-                        try:
-                            if 'Item' in i["SaleLines"]["SaleLine"]:
-                                # Ignore this entry if it was not in the shop selected.
-                                if i["SaleLines"]["SaleLine"]["shopID"] != shop_id:
-                                    self.debug_append_log("ShopID for entry is not the shop that was requested, "
-                                                          "skipping entry: %s" % str(i["SaleLines"]["SaleLine"]),
-                                                          "debug")
-                                    continue
-                                # Format the entry to be added to our export file.
-                                saleline_single = [str(i['Customer']['companyRegistrationNumber']),
-                                                   str(i['Customer']['companyRegistrationNumber']),
-                                                   str(i['Customer']['firstName'] + " " + i['Customer']['lastName']),
-                                                   self.ui.txt_ExportOptionsTransactionSource.text(),
-                                                   self.ui.txt_ExportOptionsTransactionType.text(),
-                                                   self.ui.txt_ExportOptionsSchoolYear.text(),
-                                                   str(i["SaleLines"]["SaleLine"]['timeStamp'][:10]),
-                                                   self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
-                                                   str(i["SaleLines"]["SaleLine"]['Item']['description']),
-                                                   str(i["SaleLines"]["SaleLine"]['unitQuantity']),
-                                                   Decimal(i["SaleLines"]["SaleLine"]['unitPrice']) -
-                                                   (Decimal(i["SaleLines"]["SaleLine"]['calcLineDiscount']) /
-                                                    int(i["SaleLines"]["SaleLine"]['unitQuantity'])),
-                                                   Decimal(i["SaleLines"]["SaleLine"]['displayableSubtotal']),
-                                                   self.roundup_decimal(
-                                                       Decimal(i["SaleLines"]["SaleLine"]['calcTax1'])),
-                                                   self.roundup_decimal(
-                                                       Decimal(i["SaleLines"]["SaleLine"]['calcTotal'])),
-                                                   str(i['saleID'])
-                                                   ]
-                                # Debug fields
-                                if self.ui.chk_DebugExport.isChecked():
-                                    saleline_single.append(str(i["SaleLines"]["SaleLine"]['timeStamp']))
-                                    saleline_single.append(str(i["SaleLines"]["SaleLine"]['shopID']))
-
-                                saleline_export_data.append(saleline_single)
-                        except:
-                            self.debug_append_log("Unable to append single saleline for sale # " + str(i['saleID']),
-                                                  "info")
-                            self.debug_append_log("Debug Output: " + str(i["SaleLines"]["SaleLine"]), "debug")
-
-            try:
-                filename = str(self.ui.line_ExportFolder.text())
-                filename = filename + '/lightspeed_salelines_export_' + \
-                           str(ct) + \
-                           "_" + \
-                           datetime.datetime.now().strftime('%s') + '.csv'
-                filepath = open(filename, 'w')
-                with filepath:
-                    writer = csv.writer(filepath)
-                    for row in saleline_export_data:
-                        writer.writerow(row)
-            except:
-                self.debug_append_log("Failed to export CSV salelines data.", "info")
-                self.debug_append_log(str(csv.Error), "debug")
-                return None
+        try:
+            filename = str(self.ui.line_ExportFolder.text())
+            filename = filename + '/lightspeed_salelines_export_' + \
+                       str(ct) + \
+                       "_" + \
+                       datetime.datetime.now().strftime('%s') + '.csv'
+            filepath = open(filename, 'w')
+            with filepath:
+                writer = csv.writer(filepath)
+                for row in saleline_export_data:
+                    writer.writerow(row)
+        except:
+            self.debug_append_log("Failed to export CSV salelines data.", "info")
+            self.debug_append_log(str(csv.Error), "debug")
+            return None
 
         # !! Account Balance Export !!
         try:
@@ -723,12 +724,14 @@ class Main(QMainWindow):
                         export_data.append(a)
 
                         if self.ui.chk_ClearCharges.isChecked():
+                            selected_emp = self.ui.combo_ClearChargesEmployee.currentText()
+                            emp_id = selected_emp.split("ID:", 1)[1]
                             # Clear the balance for this account
                             self.clear_account_balances(int(i['customerID']),
                                                         float(i['CreditAccount']['balance']),
                                                         int(pt_id),
                                                         int(i["creditAccountID"]),
-                                                        int(shop_id))
+                                                        int(emp_id))
 
         except:
             self.debug_append_log("Failed to format CSV data.", "info")
@@ -749,12 +752,12 @@ class Main(QMainWindow):
             self.debug_append_log("Failed to export CSV balance data.", "info")
             return None
 
-    def clear_account_balances(self, customerID, balance, paymentID, creditAccountID, shop_id):
+    def clear_account_balances(self, customerID, balance, paymentID, creditAccountID, emp_id):
         try:
             formatted_request = {
-                                "employeeID": 1,
+                                "employeeID": emp_id,
                                 "registerID": 1,
-                                "shopID": shop_id,
+                                "shopID": 1,
                                 "customerID": customerID,
                                 "completed": 'true',
                                 "SaleLines": {
@@ -838,6 +841,27 @@ class Main(QMainWindow):
         except:
             self.debug_append_log("Error adding shops to UI.", "info")
             self.debug_append_log(str(self.ls_shops), "debug")
+
+    def get_employees(self):
+        try:
+            emp = self.ls.get("Employee")
+            if isinstance(emp['Employee'], list):
+                for s in emp['Employee']:
+                    name = s["firstName"] + " " + s["lastName"] + " ID:" + s["employeeID"]
+                    self.ls_employee[name] = s
+            else:
+                name = emp["Shop"]["firstName"] + " " + emp["Shop"]["lastName"] + " ID:" + emp["Shop"]["employeeID"]
+                self.ls_employee[name] = emp['Employee']
+        except:
+            self.debug_append_log("Error getting employees from LS.", "info")
+
+        # Update Shops in UI
+        try:
+            self.ui.combo_ClearChargesEmployee.clear()
+            self.ui.combo_ClearChargesEmployee.addItems(self.ls_employee.keys())
+        except:
+            self.debug_append_log("Error adding employees to UI.", "info")
+            self.debug_append_log(str(self.ls_employee), "debug")
 
     def authorize_app(self):
         """

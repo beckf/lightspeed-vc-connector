@@ -8,7 +8,8 @@ default_config = dict()
 if sys.platform == "darwin":
     # OS X
     config_file = os.environ['HOME'] + '/Library/Preferences/lightspeed-vc-connector-prefs'
-    if not os.path.isfile(config_file + ".db"):
+    config_file_extension = ".db"
+    if not os.path.isfile(config_file + config_file_extension):
         d = shelve.open(config_file, flag='c', writeback=True)
         d["config"] = default_config
         d.sync()
@@ -17,7 +18,8 @@ if sys.platform == "darwin":
 elif "win" in sys.platform:
     # Windows
     config_file = os.environ['LOCALAPPDATA'] + "\lightspeed-vc-connector-prefs"
-    if not os.path.isfile(config_file + ".dat"):
+    config_file_extension = ".dat"
+    if not os.path.isfile(config_file + config_file_extension):
         d = shelve.open(config_file, flag='c', writeback=True)
         d["config"] = default_config
         d.sync()
@@ -41,10 +43,6 @@ def check_enc():
     """
     if os.path.isfile(config_file + ".aes"):
         return True
-    elif os.path.isfile(config_file + ".db"):
-        return False
-    elif os.path.isfile(config_file + ".dat"):
-        return False
     else:
         return False
 
@@ -57,14 +55,9 @@ def encrypt(password):
     """
     if not check_enc():
         buffersize = 64 * 1024
-        if "darwin" in sys.platform:
-            if os.path.isfile(config_file + ".db"):
-                pyAesCrypt.encryptFile(config_file + ".db", config_file_enc, password, buffersize)
-                os.remove(config_file + ".db")
-        if "win" in sys.platform:
-            if os.path.isfile(config_file + ".dat"):
-                pyAesCrypt.encryptFile(config_file + ".dat", config_file_enc, password, buffersize)
-                os.remove(config_file + ".dat")
+        if os.path.isfile(config_file + config_file_extension):
+            pyAesCrypt.encryptFile(config_file + config_file_extension, config_file_enc, password, buffersize)
+            os.remove(config_file + config_file_extension)
 
 
 def decrypt(password):
@@ -75,13 +68,9 @@ def decrypt(password):
     """
     if check_enc():
         buffersize = 64 * 1024
-        if "darwin" in sys.platform:
-            if os.path.isfile(config_file + ".db"):
-                pyAesCrypt.decryptFile(config_file_enc, config_file + ".db", password, buffersize)
-        if "win" in sys.platform:
-            if os.path.isfile(config_file + ".dat"):
-                pyAesCrypt.decryptFile(config_file_enc, config_file + ".dat", password, buffersize)
-        os.remove(config_file + ".aes")
+        if os.path.isfile(config_file + config_file_extension):
+            pyAesCrypt.decryptFile(config_file_enc, config_file + config_file_extension, password, buffersize)
+        os.remove(config_file_enc)
 
 
 def save_settings(settings, key, passwd):

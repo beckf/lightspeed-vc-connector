@@ -57,11 +57,14 @@ def encrypt(password):
     """
     if not check_enc():
         buffersize = 64 * 1024
-        if os.path.isfile(config_file + ".db"):
-            pyAesCrypt.encryptFile(config_file + ".db", config_file_enc, password, buffersize)
-        elif os.path.isfile(config_file + ".dat"):
-            pyAesCrypt.encryptFile(config_file + ".dat", config_file_enc, password, buffersize)
-        os.remove(config_file + ".db")
+        if "darwin" in sys.platform:
+            if os.path.isfile(config_file + ".db"):
+                pyAesCrypt.encryptFile(config_file + ".db", config_file_enc, password, buffersize)
+                os.remove(config_file + ".db")
+        if "win" in sys.platform:
+            if os.path.isfile(config_file + ".dat"):
+                pyAesCrypt.encryptFile(config_file + ".dat", config_file_enc, password, buffersize)
+                os.remove(config_file + ".dat")
 
 
 def decrypt(password):
@@ -72,10 +75,12 @@ def decrypt(password):
     """
     if check_enc():
         buffersize = 64 * 1024
-        if os.path.isfile(config_file + ".db"):
-            pyAesCrypt.decryptFile(config_file_enc, config_file + ".db", password, buffersize)
-        elif os.path.isfile(config_file + ".dat"):
-            pyAesCrypt.decryptFile(config_file_enc, config_file + ".dat", password, buffersize)
+        if "darwin" in sys.platform:
+            if os.path.isfile(config_file + ".db"):
+                pyAesCrypt.decryptFile(config_file_enc, config_file + ".db", password, buffersize)
+        if "win" in sys.platform:
+            if os.path.isfile(config_file + ".dat"):
+                pyAesCrypt.decryptFile(config_file_enc, config_file + ".dat", password, buffersize)
         os.remove(config_file + ".aes")
 
 

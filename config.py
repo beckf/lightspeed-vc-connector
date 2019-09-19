@@ -16,7 +16,7 @@ if sys.platform == "darwin":
 
 elif "win" in sys.platform:
     # Windows
-    config_file = os.environ['LOCALAPPDATA'] + "/lightspeed-vc-connector-prefs"
+    config_file = os.environ['LOCALAPPDATA'] + "\lightspeed-vc-connector-prefs"
     if not os.path.isfile(config_file + ".dat"):
         d = shelve.open(config_file, flag='c', writeback=True)
         d["config"] = default_config
@@ -43,6 +43,8 @@ def check_enc():
         return True
     elif os.path.isfile(config_file + ".db"):
         return False
+    elif os.path.isfile(config_file + ".dat"):
+        return False
     else:
         return False
 
@@ -55,7 +57,10 @@ def encrypt(password):
     """
     if not check_enc():
         buffersize = 64 * 1024
-        pyAesCrypt.encryptFile(config_file + ".db", config_file_enc, password, buffersize)
+        if os.path.isfile(config_file + ".db"):
+            pyAesCrypt.encryptFile(config_file + ".db", config_file_enc, password, buffersize)
+        elif os.path.isfile(config_file + ".dat"):
+            pyAesCrypt.encryptFile(config_file + ".dat", config_file_enc, password, buffersize)
         os.remove(config_file + ".db")
 
 
@@ -67,7 +72,10 @@ def decrypt(password):
     """
     if check_enc():
         buffersize = 64 * 1024
-        pyAesCrypt.decryptFile(config_file_enc, config_file + ".db", password, buffersize)
+        if os.path.isfile(config_file + ".db"):
+            pyAesCrypt.decryptFile(config_file_enc, config_file + ".db", password, buffersize)
+        elif os.path.isfile(config_file + ".dat"):
+            pyAesCrypt.decryptFile(config_file_enc, config_file + ".dat", password, buffersize)
         os.remove(config_file + ".aes")
 
 

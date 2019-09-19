@@ -55,9 +55,8 @@ def encrypt(password):
     """
     if not check_enc():
         buffersize = 64 * 1024
-        if os.path.isfile(config_file + config_file_extension):
-            pyAesCrypt.encryptFile(config_file + config_file_extension, config_file_enc, password, buffersize)
-            os.remove(config_file + config_file_extension)
+        pyAesCrypt.encryptFile(config_file + config_file_extension, config_file_enc, password, buffersize)
+        os.remove(config_file + config_file_extension)
 
 
 def decrypt(password):
@@ -68,8 +67,7 @@ def decrypt(password):
     """
     if check_enc():
         buffersize = 64 * 1024
-        if os.path.isfile(config_file + config_file_extension):
-            pyAesCrypt.decryptFile(config_file_enc, config_file + config_file_extension, password, buffersize)
+        pyAesCrypt.decryptFile(config_file_enc, config_file + config_file_extension, password, buffersize)
         os.remove(config_file_enc)
 
 

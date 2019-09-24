@@ -763,7 +763,7 @@ class Main(QMainWindow):
                                 "SaleLines": {
                                     "SaleLine": {
                                         "itemID": 0,
-                                        "note": "Balance Cleared by Export",
+                                        "note": "Balance Cleared by LSVCConnector",
                                         "unitQuantity": 1,
                                         "unitPrice": -float(balance),
                                         "taxClassID": 0,
@@ -788,6 +788,7 @@ class Main(QMainWindow):
                                   "info")
         except:
             self.debug_append_log("Unable to clear balance for customerID {}".format(str(customerID)), "info")
+            self.debug_append_log(formatted_request, "debug")
 
     def get_customer_types(self):
         try:

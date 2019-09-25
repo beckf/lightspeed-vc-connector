@@ -573,8 +573,6 @@ class Main(QMainWindow):
 
         for i in salelines['Sale']:
             # Does this invoice have a payment that is on account.
-            # Hopefully it is not a multi-tender transaction, but just in case...
-
             on_account = False
 
             if 'SalePayments' in i:
@@ -592,11 +590,25 @@ class Main(QMainWindow):
                 if i['Customer']['customerTypeID'] != ct_id:
                     continue
 
+                # Verify there are not mixed payments with on credit account
+                if isinstance(i['SalePayments']['SalePayment'], list):
+                    for p in i['SalePayments']['SalePayment']:
+                        if p['PaymentType']['code'] == 'SCA':
+                            # Skip sales that mix payments with on_account
+                            self.debug_append_log("Skipping Sale #%s (%s %s): Other payments mixed with On Account." %
+                                                  (str(i['saleID']),
+                                                   str(i['Customer']['firstName']),
+                                                   str(i['Customer']['lastName'])),
+                                                  "info")
+                            continue
+
                 # Depending on how many items sold,
                 # types of salelines are returned.
                 # List of dictionaries and a single dictionary.
                 if isinstance(i['SaleLines']['SaleLine'], list):
+
                     for s in i['SaleLines']['SaleLine']:
+
                         # Ignore this entry if it was not in the shop selected.
                         try:
                             if s['shopID'] != shop_id:
@@ -606,6 +618,7 @@ class Main(QMainWindow):
                         except:
                             self.debug_append_log("Unable to determine shopID for entry: %s." % s, "debug")
                             continue
+
                         # Format the entry to be added to our export file.
                         try:
                             saleline_single = [str(i['Customer']['companyRegistrationNumber']),
@@ -633,7 +646,8 @@ class Main(QMainWindow):
 
                             saleline_export_data.append(saleline_single)
                         except:
-                            self.debug_append_log("Unable to append multiple SaleLine data to CSV.", "info")
+                            self.debug_append_log("Unable to append item %s for Sale %s data to CSV." %
+                                                  (str(s['saleLineID']), str(i['saleID'])), "info")
                             self.debug_append_log("Debug Output: " + str(s), "debug")
                 else:
                     try:
@@ -688,7 +702,7 @@ class Main(QMainWindow):
                 for row in saleline_export_data:
                     writer.writerow(row)
         except:
-            self.debug_append_log("Failed to export CSV salelines data.", "info")
+            self.debug_append_log("Failed to format CSV SaleLine data.", "info")
             self.debug_append_log(str(csv.Error), "debug")
             return None
 
@@ -734,7 +748,7 @@ class Main(QMainWindow):
                                                         int(emp_id))
 
         except:
-            self.debug_append_log("Failed to format CSV data.", "info")
+            self.debug_append_log("Failed to format CreditBalance Export data.", "info")
             return None
 
         try:

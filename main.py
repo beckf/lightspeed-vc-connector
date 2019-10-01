@@ -696,14 +696,14 @@ class Main(QMainWindow):
                        str(ct) + \
                        "_" + \
                        datetime.datetime.now().strftime('%s') + '.csv'
-            filepath = open(filename, 'w')
-            with filepath:
-                writer = csv.writer(filepath)
+
+            with open(filename, 'w') as file:
+                writer = csv.writer(file)
                 for row in saleline_export_data:
                     writer.writerow(row)
         except:
             self.debug_append_log("Failed to format CSV SaleLine data.", "info")
-            self.debug_append_log(str(csv.Error), "debug")
+            self.debug_append_log(sys.exc_info()[0], "debug")
             return None
 
         # !! Account Balance Export !!

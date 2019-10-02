@@ -697,10 +697,15 @@ class Main(QMainWindow):
                        "_" + \
                        datetime.datetime.now().strftime('%s') + '.csv'
 
-            with open(filename, 'w') as file:
-                writer = csv.writer(file)
+            with open(filename, 'w', encoding='utf-8') as file:
+                salelines_writer = csv.writer(file, dialect='excel', quoting=csv.QUOTE_ALL, quotechar="'")
+
                 for row in saleline_export_data:
-                    writer.writerow(row)
+                    try:
+                        salelines_writer.writerow(row)
+                    except:
+                        self.debug_append_log("Failed to write row %s" % str(row), "info")
+
         except:
             self.debug_append_log("Failed to format CSV SaleLine data.", "info")
             self.debug_append_log(sys.exc_info()[0], "debug")
@@ -757,9 +762,9 @@ class Main(QMainWindow):
                        str(ct) +\
                        "_" +\
                        datetime.datetime.now().strftime('%s') + '.csv'
-            filepath = open(filename, 'w')
+            filepath = open(filename, 'w', encoding='utf-8')
             with filepath:
-                writer = csv.writer(filepath)
+                writer = csv.writer(filepath, dialect='excel', quoting=csv.QUOTE_ALL, quotechar="'")
                 for row in export_data:
                     writer.writerow(row)
         except:

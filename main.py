@@ -698,7 +698,7 @@ class Main(QMainWindow):
                        datetime.datetime.now().strftime('%s') + '.csv'
 
             with open(filename, 'w', encoding='utf-8') as file:
-                salelines_writer = csv.writer(file, dialect='excel', quoting=csv.QUOTE_ALL, quotechar="'")
+                salelines_writer = csv.writer(file, dialect='excel', quoting=csv.QUOTE_ALL, quotechar='"')
 
                 for row in saleline_export_data:
                     try:

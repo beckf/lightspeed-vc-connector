@@ -605,6 +605,7 @@ class Main(QMainWindow):
                 # Depending on how many items sold,
                 # types of salelines are returned.
                 # List of dictionaries and a single dictionary.
+                # Is this multiline sale?
                 if isinstance(i['SaleLines']['SaleLine'], list):
 
                     for s in i['SaleLines']['SaleLine']:
@@ -619,8 +620,26 @@ class Main(QMainWindow):
                             self.debug_append_log("Unable to determine shopID for entry: %s." % s, "debug")
                             continue
 
+                        # Determine correct item description to use:
+                        try:
+                            if 'Item' in s:
+                                if 'description' in s['Item']:
+                                    description = str(s['Item']['description'])
+                                else:
+                                    description = "Unknown"
+                            elif 'Note' in s:
+                                if 'note' in s['Note']:
+                                    description = str(s['Note']['note'])
+                                    self.debug_append_log("Debug Output: Sale line without actual item: " +
+                                                          str(description), "debug")
+                            else:
+                                description = "Unknown"
+                        except:
+                            description = "Unknown"
+
                         # Format the entry to be added to our export file.
                         try:
+
                             saleline_single = [str(i['Customer']['companyRegistrationNumber']),
                                                str(i['Customer']['companyRegistrationNumber']),
                                                str(i['Customer']['firstName'] + " " + i['Customer']['lastName']),
@@ -629,7 +648,7 @@ class Main(QMainWindow):
                                                self.ui.txt_ExportOptionsSchoolYear.text(),
                                                str(i['timeStamp'][:10]),
                                                self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
-                                               str(s['Item']['description']),
+                                               str(description),
                                                str(s['unitQuantity']),
                                                Decimal(s['unitPrice']) -
                                                (Decimal(s['calcLineDiscount']) / int(s['unitQuantity'])),
@@ -646,18 +665,41 @@ class Main(QMainWindow):
 
                             saleline_export_data.append(saleline_single)
                         except:
-                            self.debug_append_log("Unable to append item %s for Sale %s data to CSV." %
+                            self.debug_append_log("Unable to append item (multisale) %s for Sale %s data to CSV." %
                                                   (str(s['saleLineID']), str(i['saleID'])), "info")
                             self.debug_append_log("Debug Output: " + str(s), "debug")
                 else:
                     try:
+                        # Is this a singleline sale?
                         if 'Item' in i["SaleLines"]["SaleLine"]:
+                        # Need to be able to identify the item by it's type and not if it has items.
+                        # What if only single misc charge?  To do this the way we clear balances needs to be change.
+                        # Ideally we would want a Payment to CC Account.
+                        #if isinstance(i["SaleLines"]["SaleLine"], dict):
                             # Ignore this entry if it was not in the shop selected.
                             if i["SaleLines"]["SaleLine"]["shopID"] != shop_id:
                                 self.debug_append_log("ShopID for entry is not the shop that was requested, "
                                                       "skipping entry: %s" % str(i["SaleLines"]["SaleLine"]),
                                                       "debug")
                                 continue
+
+                            # Determine a description
+                            try:
+                                if 'Item' in i["SaleLines"]["SaleLine"]:
+                                    if 'description' in i["SaleLines"]["SaleLine"]['Item']:
+                                        description = str(i["SaleLines"]["SaleLine"]['Item']['description'])
+                                    else:
+                                        description = "Unknown"
+                                elif 'Note' in i["SaleLines"]["SaleLine"]:
+                                    if 'note' in i["SaleLines"]["SaleLine"]['Note']:
+                                        description = str(i["SaleLines"]["SaleLine"]['Note']['note'])
+                                        self.debug_append_log("Debug Output: Sale line without actual item: " +
+                                                              str(description), "debug")
+                                else:
+                                    description = "Unknown"
+                            except:
+                                description = "Unknown"
+
                             # Format the entry to be added to our export file.
                             saleline_single = [str(i['Customer']['companyRegistrationNumber']),
                                                str(i['Customer']['companyRegistrationNumber']),
@@ -667,7 +709,7 @@ class Main(QMainWindow):
                                                self.ui.txt_ExportOptionsSchoolYear.text(),
                                                str(i["SaleLines"]["SaleLine"]['timeStamp'][:10]),
                                                self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
-                                               str(i["SaleLines"]["SaleLine"]['Item']['description']),
+                                               str(description),
                                                str(i["SaleLines"]["SaleLine"]['unitQuantity']),
                                                Decimal(i["SaleLines"]["SaleLine"]['unitPrice']) -
                                                (Decimal(i["SaleLines"]["SaleLine"]['calcLineDiscount']) /
@@ -686,7 +728,7 @@ class Main(QMainWindow):
 
                             saleline_export_data.append(saleline_single)
                     except:
-                        self.debug_append_log("Unable to append single saleline for sale # " + str(i['saleID']),
+                        self.debug_append_log("Unable to append (single) saleline for sale # " + str(i['saleID']),
                                               "info")
                         self.debug_append_log("Debug Output: " + str(i["SaleLines"]["SaleLine"]), "debug")
 

@@ -165,8 +165,6 @@ class Main(QMainWindow):
         self.key_reveal_hidden_settings = QShortcut(QKeySequence("Ctrl+Shift+R"), self)
         self.key_reveal_hidden_settings.activated.connect(self.reveal_hidden)
 
-
-
         if "vcuser" in self.c.keys():
             self.ui.txt_VCUser.setText(self.c["vcuser"])
         if "vcpass" in self.c.keys():
@@ -316,7 +314,7 @@ class Main(QMainWindow):
                                      }
                                  },
                                  'CreditAccount': {
-                                     'creditLimit': '5000.00'
+                                     'creditLimit': '20000.00'
                                  },
                                  'CustomFieldValues': {
                                      'CustomFieldValue': [{

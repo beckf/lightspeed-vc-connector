@@ -10,6 +10,7 @@ lightspeed-api==0.1
 macholib==1.14
 modulegraph==0.18
 packaging==20.1
+pathlib==1.0.1
 pefile==2019.4.18
 pipdeptree==0.13.2
 py-dateutil==2.2
@@ -26,5 +27,6 @@ requests==2.23.0
 sip==5.1.1
 six==1.14.0
 toml==0.10.0
+typing==3.7.4.1
 urllib3==1.25.8
 veracross-api==1.0

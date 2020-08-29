@@ -63,6 +63,7 @@ Gift Cards all together or do not use the credit account as a way to purchase th
 * LS Developer Client Secret
 * VC Username
 * VC Password
+* VC URL (https://api.veracross.com/{schoolcode}/v2/)
 
 7) Click Save Settings and restart the application.
 

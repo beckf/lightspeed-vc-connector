@@ -520,13 +520,6 @@ max-height: 16px;
        <property name="formAlignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
        </property>
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>Credit Account Amount</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
         <widget class="QSpinBox" name="spinBox_CreditAmount">
          <property name="sizePolicy">
@@ -555,6 +548,41 @@ max-height: 16px;
          </property>
          <property name="value">
           <number>10000</number>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_32">
+         <property name="text">
+          <string>LastSync Custom Field Name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="line_LastSyncField">
+         <property name="placeholderText">
+          <string>LastSync</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_33">
+         <property name="text">
+          <string>VeracrossID Custom Field Name</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="line_VeracrossIDField">
+         <property name="placeholderText">
+          <string>VeracrossID</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>Credit Account Amount</string>
          </property>
         </widget>
        </item>

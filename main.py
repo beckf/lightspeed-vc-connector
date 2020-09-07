@@ -254,6 +254,10 @@ class Main(QMainWindow):
 
         param = {}
 
+        if self.veracrossid_field is None or self.lastsync_field is None:
+            self.debug_append_log("Enter valid map fields for VeracrossID and LastSync first.", "info")
+            return None
+
         if self.ui.checkBox_SyncChangesAfterDate.isChecked():
             updated_after_ui = self.ui.dateEdit_SyncUpdatedAfterDate.date()
             param.update({"updated_after": str(updated_after_ui.toPyDate())})

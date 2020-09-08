@@ -3,9 +3,13 @@
 This is a PyQT application developed to provide integration between Veracross and Lightspeed.
 
 [Features](#features)
+
 [Known Issues](#known-issues)
+
 [Screenshots](#screenshots)
+
 [Getting Started](#getting-started)
+
 
 ### <a name="features"></a>Features
 * Settings are encrypted in AES256-CBC.

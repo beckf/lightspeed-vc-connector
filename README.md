@@ -43,6 +43,7 @@ Gift Cards all together or do not use the credit account as a way to purchase th
 
 ![alt text](images/screenshots/authorize.png "Authorize Tab")
 
+![alt text](images/screenshots/license.png "License Tab")
 
 ### How to Get Started
 1) Create two CustomerTypes in your Lightspeed shop for Veracross Students and Faculty named **Student** and **FacultyStaff**

@@ -2,9 +2,10 @@
 
 # Form implementation generated from reading ui file 'qt-lightspeed-pos-vc-connector/mainwindow.ui'
 #
-# Created by: PyQt5 UI code generator 5.12.2
+# Created by: PyQt5 UI code generator 5.14.1
 #
 # WARNING! All changes made in this file will be lost!
+
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -241,6 +242,59 @@ class Ui_MainWindow(object):
         self.combo_PaymentType.setObjectName("combo_PaymentType")
         self.gridLayout_8.addWidget(self.combo_PaymentType, 1, 1, 1, 1)
         self.tabs.addTab(self.functionsTab, "")
+        self.tab_2 = QtWidgets.QWidget()
+        self.tab_2.setObjectName("tab_2")
+        self.formLayoutWidget = QtWidgets.QWidget(self.tab_2)
+        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 40, 601, 271))
+        self.formLayoutWidget.setObjectName("formLayoutWidget")
+        self.formLayout = QtWidgets.QFormLayout(self.formLayoutWidget)
+        self.formLayout.setFormAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.formLayout.setContentsMargins(11, 11, 11, 11)
+        self.formLayout.setSpacing(6)
+        self.formLayout.setObjectName("formLayout")
+        self.spinBox_CreditAmount = QtWidgets.QSpinBox(self.formLayoutWidget)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.spinBox_CreditAmount.sizePolicy().hasHeightForWidth())
+        self.spinBox_CreditAmount.setSizePolicy(sizePolicy)
+        self.spinBox_CreditAmount.setMinimumSize(QtCore.QSize(14, 0))
+        self.spinBox_CreditAmount.setButtonSymbols(QtWidgets.QAbstractSpinBox.PlusMinus)
+        self.spinBox_CreditAmount.setAccelerated(True)
+        self.spinBox_CreditAmount.setMaximum(50000)
+        self.spinBox_CreditAmount.setSingleStep(100)
+        self.spinBox_CreditAmount.setProperty("value", 10000)
+        self.spinBox_CreditAmount.setObjectName("spinBox_CreditAmount")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.spinBox_CreditAmount)
+        self.label_32 = QtWidgets.QLabel(self.formLayoutWidget)
+        self.label_32.setObjectName("label_32")
+        self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_32)
+        self.line_LastSyncField = QtWidgets.QLineEdit(self.formLayoutWidget)
+        self.line_LastSyncField.setObjectName("line_LastSyncField")
+        self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.line_LastSyncField)
+        self.label_33 = QtWidgets.QLabel(self.formLayoutWidget)
+        self.label_33.setObjectName("label_33")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_33)
+        self.line_VeracrossIDField = QtWidgets.QLineEdit(self.formLayoutWidget)
+        self.line_VeracrossIDField.setObjectName("line_VeracrossIDField")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.line_VeracrossIDField)
+        self.label_4 = QtWidgets.QLabel(self.formLayoutWidget)
+        self.label_4.setObjectName("label_4")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_4)
+        self.label_31 = QtWidgets.QLabel(self.tab_2)
+        self.label_31.setGeometry(QtCore.QRect(10, 10, 601, 21))
+        self.label_31.setObjectName("label_31")
+        self.verticalLayoutWidget_3 = QtWidgets.QWidget(self.tab_2)
+        self.verticalLayoutWidget_3.setGeometry(QtCore.QRect(10, 340, 611, 41))
+        self.verticalLayoutWidget_3.setObjectName("verticalLayoutWidget_3")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_3)
+        self.verticalLayout_3.setContentsMargins(11, 11, 11, 11)
+        self.verticalLayout_3.setSpacing(6)
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
+        self.btn_SaveImportOptions = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
+        self.btn_SaveImportOptions.setObjectName("btn_SaveImportOptions")
+        self.verticalLayout_3.addWidget(self.btn_SaveImportOptions)
+        self.tabs.addTab(self.tab_2, "")
         self.tab_ExportOptions = QtWidgets.QWidget()
         self.tab_ExportOptions.setObjectName("tab_ExportOptions")
         self.gridLayoutWidget_5 = QtWidgets.QWidget(self.tab_ExportOptions)
@@ -477,7 +531,7 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(1)
+        self.tabs.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -531,6 +585,14 @@ class Ui_MainWindow(object):
         self.label.setText(_translate("MainWindow", "Clear Charges After Export"))
         self.label_2.setText(_translate("MainWindow", "Clearing Payment Type"))
         self.tabs.setTabText(self.tabs.indexOf(self.functionsTab), _translate("MainWindow", "Export"))
+        self.label_32.setText(_translate("MainWindow", "LastSync Custom Field Name"))
+        self.line_LastSyncField.setPlaceholderText(_translate("MainWindow", "LastSync"))
+        self.label_33.setText(_translate("MainWindow", "VeracrossID Custom Field Name"))
+        self.line_VeracrossIDField.setPlaceholderText(_translate("MainWindow", "VeracrossID"))
+        self.label_4.setText(_translate("MainWindow", "Credit Account Amount"))
+        self.label_31.setText(_translate("MainWindow", "Enter defaults to be used when creating a new account in Lightspeed"))
+        self.btn_SaveImportOptions.setText(_translate("MainWindow", "Save"))
+        self.tabs.setTabText(self.tabs.indexOf(self.tab_2), _translate("MainWindow", "Import Options"))
         self.label_22.setText(_translate("MainWindow", "School_Year"))
         self.label_25.setText(_translate("MainWindow", "Transaction_Type"))
         self.label_24.setText(_translate("MainWindow", "Trasaction_Source"))
@@ -565,5 +627,3 @@ class Ui_MainWindow(object):
         self.btn_SaveLog.setText(_translate("MainWindow", "Save Log"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
-
-

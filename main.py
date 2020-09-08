@@ -148,6 +148,9 @@ class Main(QMainWindow):
         # Export Options Buttons
         self.ui.btn_SaveExportOptions.clicked.connect(self.save_settings_button)
 
+        # Import Options Buttons
+        self.ui.btn_SaveImportOptions.clicked.connect(self.save_settings_button)
+
         # Action Menu
         self.ui.actionQuit.triggered.connect(self.close)
 
@@ -190,6 +193,12 @@ class Main(QMainWindow):
         if "debug_export" in self.c.keys():
             if self.c["debug_export"] is True:
                 self.ui.chk_DebugExport.setChecked(True)
+        if "import_options_creditamount" in self.c.keys():
+            self.ui.spinBox_CreditAmount.setValue(self.c["import_options_creditamount"])
+        if "import_options_lastsync" in self.c.keys():
+            self.ui.line_LastSyncField.setText(self.c["import_options_lastsync"])
+        if "import_options_veracrossid" in self.c.keys():
+            self.ui.line_VeracrossIDField.setText(self.c["import_options_veracrossid"])
 
         # Store data
         self.export_dir = ""
@@ -201,6 +210,7 @@ class Main(QMainWindow):
         # Get some initial LS Data
         self.get_customer_types()
         self.get_payment_types()
+        self.get_CustomField()
         self.get_shops()
         self.get_employees()
 
@@ -243,6 +253,10 @@ class Main(QMainWindow):
     def create_update_customer(self):
 
         param = {}
+
+        if self.veracrossid_field is None or self.lastsync_field is None:
+            self.debug_append_log("Enter valid map fields for VeracrossID and LastSync first.", "info")
+            return None
 
         if self.ui.checkBox_SyncChangesAfterDate.isChecked():
             updated_after_ui = self.ui.dateEdit_SyncUpdatedAfterDate.date()
@@ -314,14 +328,14 @@ class Main(QMainWindow):
                                      }
                                  },
                                  'CreditAccount': {
-                                     'creditLimit': '20000.00'
+                                     'creditLimit': str(self.c["import_options_creditamount"]) + '.00'
                                  },
                                  'CustomFieldValues': {
                                      'CustomFieldValue': [{
-                                         'customFieldID': '1',
+                                         'customFieldID': self.veracrossid_field,
                                          'value': i["person_pk"]
                                      }, {
-                                         'customFieldID': '2',
+                                         'customFieldID': self.lastsync_field,
                                          'value': str(datetime.datetime.now())
                                      }
                                      ]}
@@ -883,6 +897,34 @@ class Main(QMainWindow):
         except:
             self.debug_append_log("Unable to set default payment type to Credit Account.", "info")
 
+    def get_CustomField(self):
+        """
+        Get the Lightspeed id for the customfields
+        :return:
+        """
+        self.veracrossid_field = None
+        self.lastsync_field = None
+
+        try:
+            custom_fields = self.ls.get("Customer/CustomField")
+            if isinstance(custom_fields["CustomField"], list):
+                for cf in custom_fields["CustomField"]:
+                    # Find internal id for VeracrossID Field
+                    if str(cf["name"]) == str(self.ui.line_VeracrossIDField.text()):
+                        self.veracrossid_field = cf["customFieldID"]
+
+                    # Find internal id for LastSync Field
+                    if str(cf["name"]) == str(self.ui.line_LastSyncField.text()):
+                        self.lastsync_field = cf["customFieldID"]
+
+        except:
+            self.debug_append_log("Something went wrong when trying to match custom import fields!", "debug")
+
+        if self.veracrossid_field is None:
+            self.debug_append_log("Unable to find Lightspeed custom import field for VeracrossID.", "info")
+        if self.lastsync_field is None:
+            self.debug_append_log("Unable to find Lightspeed custom import field for LastSync.", "info")
+
     def get_shops(self):
         try:
             shop = self.ls.get("Shop")
@@ -1005,7 +1047,10 @@ class Main(QMainWindow):
             "vc_export_catalog_item_fk": self.ui.txt_ExportOptionsCatalog_Item_fk.text(),
             "vc_export_school_year": self.ui.txt_ExportOptionsSchoolYear.text(),
             "vc_export_transaction_type": self.ui.txt_ExportOptionsTransactionType.text(),
-            "vc_export_transaction_source": self.ui.txt_ExportOptionsTransactionSource.text()
+            "vc_export_transaction_source": self.ui.txt_ExportOptionsTransactionSource.text(),
+            "import_options_creditamount": self.ui.spinBox_CreditAmount.value(),
+            "import_options_lastsync": self.ui.line_LastSyncField.text(),
+            "import_options_veracrossid": self.ui.line_VeracrossIDField.text()
         }
 
         if self.ui.chk_DebugExport.isChecked():
@@ -1017,11 +1062,11 @@ class Main(QMainWindow):
         config.save_settings(settings, "config", self.config_passwd)
         # Reload Settings
         self.c = config.load_settings("config", self.config_passwd)
+        self.get_CustomField()
 
         # Suggest user restart the app
         QMessageBox.question(self, 'Settings Saved',
-                             "The settings have been saved. It is recommended that "
-                             "you quit and restart the application.",
+                             "The settings have been saved",
                              QMessageBox.Ok)
 
     def change_password(self):

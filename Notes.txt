@@ -1,7 +1,0 @@
-Add Customer Types to Lightspeed:
-1st - Student
-2nd - FacultyStaff
-
-Add Custom Fields (Any order):
-VeracrossID
-DA Last Sync

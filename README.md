@@ -2,7 +2,12 @@
 
 This is a PyQT application developed to provide integration between Veracross and Lightspeed.
 
-### Features
+[Features](#features)
+[Known Issues](#known-issues)
+[Screenshots](#screenshots)
+[Getting Started](#getting-started)
+
+### <a name="features"></a>Features
 * Settings are encrypted in AES256-CBC.
 * Create and update customers in Lightspeed directly from Veracross API.
 * Create and update customers that have been updated in VC after a specific date.
@@ -16,7 +21,7 @@ amount on account.
 * Easily authorize the application using your own Lightspeed Developer account and your Lightspeed Retail account.
 * Veracross ID stored in LS Custom field for looking up customers by barcode.
 
-### Known Issues
+### <a name="known-issues"></a>Known Issues
 * Export of individual SaleLines as opposed to the entire invoice total will round the totals differently. 
 Currency fields are stored in Lightspeed to the thousandth of a cent.  This means that the invoice total could be rounded 
 differently than rounding each individual item.  This is only been noticed when charging tax in Lightspeed.
@@ -28,7 +33,7 @@ and imported into Veracross.
 Gift Cards all together or do not use the credit account as a way to purchase the gift card. 
 
 
-### Screenshots
+### <a name="screenshots"></a>Screenshots
 ![alt text](images/screenshots/sync.png "Sync Tab")
 
 ![alt text](images/screenshots/export.png "Export Tab")
@@ -45,7 +50,7 @@ Gift Cards all together or do not use the credit account as a way to purchase th
 
 ![alt text](images/screenshots/license.png "License Tab")
 
-### How to Get Started
+### <a name="getting-started"></a>How to Get Started
 1) Create two CustomerTypes in your Lightspeed shop for Veracross Students and Faculty named **Student** and **FacultyStaff**
 
 2) Create two custom fields in Lightspeed, both Customer Text fields. One named **Veracross ID** and the other named **Last Sync**.

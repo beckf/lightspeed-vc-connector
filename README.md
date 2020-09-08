@@ -19,7 +19,7 @@ amount on account.
 ### Known Issues
 * Export of individual SaleLines as opposed to the entire invoice total will round the totals differently. 
 Currency fields are stored in Lightspeed to the thousandth of a cent.  This means that the invoice total could be rounded 
-differently than rounding each individual item.
+differently than rounding each individual item.  This is only been noticed when charging tax in Lightspeed.
 * Multi-Tender On Account Sales: Because each item on an invoice is not associated with the payment type, it is best to 
 avoid mixing credit account sales with other payment types.  The export will find all invoices that have been paid (fully/partially)
 by a credit account. So you run the risk of charging the customer twice. The amount paid with the other tender type will be ignored
@@ -29,33 +29,36 @@ Gift Cards all together or do not use the credit account as a way to purchase th
 
 
 ### Screenshots
-![alt text](images/sync.png "Sync Tab")
+![alt text](images/screenshots/sync.png "Sync Tab")
 
-![alt text](images/export.png "Export Tab")
+![alt text](images/screenshots/export.png "Export Tab")
 
-![alt text](images/export_options.png "Export Options Tab")
+![alt text](images/screenshots/import-options.png "Import Options Tab")
 
-![alt text](images/settings.png "Settings Tab")
+![alt text](images/screenshots/export-options.png "Export Options Tab")
 
-![alt text](images/password_tab.png "Password Tab")
+![alt text](images/screenshots/settings.png "Settings Tab")
 
-![alt text](images/authorize.png "Authorize Tab")
+![alt text](images/screenshots/password.png "Password Tab")
+
+![alt text](images/screenshots/authorize.png "Authorize Tab")
 
 
 ### How to Get Started
 1) Create two CustomerTypes in your Lightspeed shop for Veracross Students and Faculty named **Student** and **FacultyStaff**
 
-2) Create two custom fields in Lightspeed, both Customer Text fields. One named **Veracross ID** and the other named **Last Sync**
+2) Create two custom fields in Lightspeed, both Customer Text fields. One named **Veracross ID** and the other named **Last Sync**.
+* You can use any name you want for the text fields.
 
 3) [Signup with Lightspeed OAuth](https://cloud.lightspeedapp.com/oauth/register.php).
 * You will run the application under your own Lightspeed developer account/application.
 * Be sure to set the redirect URI to http://localhost . This will leave the refresh token in the browser window for the app to capture.
 
-![alt text](images/ls_oauth_signup.png "LS OAuth")
+![alt text](images/screenshots/ls_oauth_signup.png "LS OAuth")
 
-4) Obtain Veracross API credentials from VC Account Rep.
+4) Obtain Veracross API credentials from Veracross Account Rep.
     
-5) Run the application.  You will be prompted for a password.  This password will be used for encrypting the settings file.
+5) Run the application.  You will be prompted for a password.  This password will be used for encrypting the new settings file.
 
 6) On the settings tab, enter:
 * LS Account ID Number (Click Username when logged into Lightspeed)
@@ -65,6 +68,8 @@ Gift Cards all together or do not use the credit account as a way to purchase th
 * VC Password
 * VC URL (https://api.veracross.com/{schoolcode}/v2/)
 
+![alt text](images/screenshots/lightspeed-account-num.png "LS AccountNum")
+
 7) Click Save Settings and restart the application.
 
 8) Go to the Authorize Tab and click the Authorize Button.  Login to Lightspeed using your admin login id and password.
@@ -72,3 +77,7 @@ Gift Cards all together or do not use the credit account as a way to purchase th
 9) Grant your application access to the account. 
 
 10) Restart the application.
+
+11) Set the field names from #2 in the import options tab.
+
+Do your first Sync!

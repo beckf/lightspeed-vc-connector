@@ -17,6 +17,13 @@ import images
 import traceback
 import update
 
+# Set Scaling for High Resolution Displays
+if hasattr(Qt, 'AA_EnableHighDpiScaling'):
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+
+if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+
 
 class Worker(QRunnable):
 
@@ -53,7 +60,7 @@ class WorkerSignals(QObject):
 
 
 class AuthorizeLS(QMainWindow):
-    def __init__(self, auth_url):
+    def __init__(self, auth_url: object) -> object:
         QMainWindow.__init__(self)
         self.auth_url = auth_url
         self.page = QWebEnginePage()

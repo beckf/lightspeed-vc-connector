@@ -20,10 +20,11 @@ elif "win" in sys.platform:
     config_file = os.environ['LOCALAPPDATA'] + "\lightspeed-vc-connector-prefs"
     config_file_extension = ".dat"
     if not os.path.isfile(config_file + config_file_extension):
-        d = shelve.open(config_file, flag='c', writeback=True)
-        d["config"] = default_config
-        d.sync()
-        d.close()
+        if not os.path.isfile(config_file + ".aes"):
+            d = shelve.open(config_file, flag='c', writeback=True)
+            d["config"] = default_config
+            d.sync()
+            d.close()
 
 else:
     config_file = "lightspeed-vc-connector-prefs"

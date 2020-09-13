@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(663, 786)
+        MainWindow.resize(663, 712)
         font = QtGui.QFont()
         font.setFamily("Roboto")
         font.setPointSize(-1)
@@ -64,7 +64,7 @@ class Ui_MainWindow(object):
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralWidget")
         self.tabs = QtWidgets.QTabWidget(self.centralWidget)
-        self.tabs.setGeometry(QtCore.QRect(20, 290, 631, 421))
+        self.tabs.setGeometry(QtCore.QRect(10, 230, 641, 421))
         self.tabs.setStyleSheet("")
         self.tabs.setUsesScrollButtons(False)
         self.tabs.setObjectName("tabs")
@@ -485,13 +485,13 @@ class Ui_MainWindow(object):
         self.label_VersionInfo.setObjectName("label_VersionInfo")
         self.tabs.addTab(self.tab_License, "")
         self.txtb_SyncLog = QtWidgets.QTextEdit(self.centralWidget)
-        self.txtb_SyncLog.setGeometry(QtCore.QRect(20, 80, 631, 201))
+        self.txtb_SyncLog.setGeometry(QtCore.QRect(10, 50, 641, 171))
         self.txtb_SyncLog.setObjectName("txtb_SyncLog")
         self.lbl_Icon = QtWidgets.QLabel(self.centralWidget)
         self.lbl_Icon.setGeometry(QtCore.QRect(150, 10, 500, 380))
         self.lbl_Icon.setObjectName("lbl_Icon")
         self.horizontalLayoutWidget_2 = QtWidgets.QWidget(self.centralWidget)
-        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(20, 29, 631, 51))
+        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(10, -1, 641, 41))
         self.horizontalLayoutWidget_2.setObjectName("horizontalLayoutWidget_2")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_2)
         self.horizontalLayout_2.setContentsMargins(11, 11, 11, 11)
@@ -531,7 +531,7 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(2)
+        self.tabs.setCurrentIndex(7)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -623,7 +623,7 @@ class Ui_MainWindow(object):
         self.label_VersionInfo.setText(_translate("MainWindow", "Version Info"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab_License), _translate("MainWindow", "License"))
         self.lbl_Icon.setText(_translate("MainWindow", "icon"))
-        self.lbl_SyncLog.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:18pt; font-weight:600;\">Log</span></p></body></html>"))
+        self.lbl_SyncLog.setText(_translate("MainWindow", "<html><head/><body><p><br/></p></body></html>"))
         self.btn_SaveLog.setText(_translate("MainWindow", "Save Log"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))

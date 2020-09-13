@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>663</width>
-    <height>786</height>
+    <height>712</height>
    </rect>
   </property>
   <property name="font">
@@ -80,7 +80,7 @@ max-height: 16px;
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>7</number>
     </property>
     <property name="usesScrollButtons">
      <bool>false</bool>
@@ -1034,9 +1034,9 @@ max-height: 16px;
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>30</y>
+      <y>50</y>
       <width>641</width>
-      <height>191</height>
+      <height>171</height>
      </rect>
     </property>
    </widget>
@@ -1059,7 +1059,7 @@ max-height: 16px;
       <x>10</x>
       <y>-1</y>
       <width>641</width>
-      <height>31</height>
+      <height>41</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">

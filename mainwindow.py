@@ -13,7 +13,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(663, 786)
+        MainWindow.resize(663, 712)
         font = QtGui.QFont()
         font.setFamily("Roboto")
         font.setPointSize(-1)
@@ -485,13 +485,13 @@ class Ui_MainWindow(object):
         self.label_VersionInfo.setObjectName("label_VersionInfo")
         self.tabs.addTab(self.tab_License, "")
         self.txtb_SyncLog = QtWidgets.QTextEdit(self.centralWidget)
-        self.txtb_SyncLog.setGeometry(QtCore.QRect(10, 30, 641, 191))
+        self.txtb_SyncLog.setGeometry(QtCore.QRect(10, 50, 641, 171))
         self.txtb_SyncLog.setObjectName("txtb_SyncLog")
         self.lbl_Icon = QtWidgets.QLabel(self.centralWidget)
         self.lbl_Icon.setGeometry(QtCore.QRect(150, 10, 500, 380))
         self.lbl_Icon.setObjectName("lbl_Icon")
         self.horizontalLayoutWidget_2 = QtWidgets.QWidget(self.centralWidget)
-        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(10, -1, 641, 31))
+        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(10, -1, 641, 41))
         self.horizontalLayoutWidget_2.setObjectName("horizontalLayoutWidget_2")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_2)
         self.horizontalLayout_2.setContentsMargins(11, 11, 11, 11)
@@ -531,7 +531,7 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(0)
+        self.tabs.setCurrentIndex(7)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

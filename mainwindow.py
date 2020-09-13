@@ -64,7 +64,7 @@ class Ui_MainWindow(object):
         self.centralWidget = QtWidgets.QWidget(MainWindow)
         self.centralWidget.setObjectName("centralWidget")
         self.tabs = QtWidgets.QTabWidget(self.centralWidget)
-        self.tabs.setGeometry(QtCore.QRect(20, 290, 631, 421))
+        self.tabs.setGeometry(QtCore.QRect(10, 230, 641, 421))
         self.tabs.setStyleSheet("")
         self.tabs.setUsesScrollButtons(False)
         self.tabs.setObjectName("tabs")
@@ -485,13 +485,13 @@ class Ui_MainWindow(object):
         self.label_VersionInfo.setObjectName("label_VersionInfo")
         self.tabs.addTab(self.tab_License, "")
         self.txtb_SyncLog = QtWidgets.QTextEdit(self.centralWidget)
-        self.txtb_SyncLog.setGeometry(QtCore.QRect(20, 80, 631, 201))
+        self.txtb_SyncLog.setGeometry(QtCore.QRect(10, 30, 641, 191))
         self.txtb_SyncLog.setObjectName("txtb_SyncLog")
         self.lbl_Icon = QtWidgets.QLabel(self.centralWidget)
         self.lbl_Icon.setGeometry(QtCore.QRect(150, 10, 500, 380))
         self.lbl_Icon.setObjectName("lbl_Icon")
         self.horizontalLayoutWidget_2 = QtWidgets.QWidget(self.centralWidget)
-        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(20, 29, 631, 51))
+        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(10, -1, 641, 31))
         self.horizontalLayoutWidget_2.setObjectName("horizontalLayoutWidget_2")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_2)
         self.horizontalLayout_2.setContentsMargins(11, 11, 11, 11)
@@ -531,7 +531,7 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(2)
+        self.tabs.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):

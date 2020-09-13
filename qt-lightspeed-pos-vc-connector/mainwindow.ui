@@ -70,9 +70,9 @@ max-height: 16px;
    <widget class="QTabWidget" name="tabs">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>290</y>
-      <width>631</width>
+      <x>10</x>
+      <y>230</y>
+      <width>641</width>
       <height>421</height>
      </rect>
     </property>
@@ -80,7 +80,7 @@ max-height: 16px;
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="usesScrollButtons">
      <bool>false</bool>
@@ -1033,10 +1033,10 @@ max-height: 16px;
    <widget class="QTextEdit" name="txtb_SyncLog">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>80</y>
-      <width>631</width>
-      <height>201</height>
+      <x>10</x>
+      <y>30</y>
+      <width>641</width>
+      <height>191</height>
      </rect>
     </property>
    </widget>
@@ -1056,10 +1056,10 @@ max-height: 16px;
    <widget class="QWidget" name="horizontalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>29</y>
-      <width>631</width>
-      <height>51</height>
+      <x>10</x>
+      <y>-1</y>
+      <width>641</width>
+      <height>31</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_2">

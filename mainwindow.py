@@ -623,7 +623,7 @@ class Ui_MainWindow(object):
         self.label_VersionInfo.setText(_translate("MainWindow", "Version Info"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab_License), _translate("MainWindow", "License"))
         self.lbl_Icon.setText(_translate("MainWindow", "icon"))
-        self.lbl_SyncLog.setText(_translate("MainWindow", "<html><head/><body><p><span style=\" font-size:18pt; font-weight:600;\">Log</span></p></body></html>"))
+        self.lbl_SyncLog.setText(_translate("MainWindow", "<html><head/><body><p><br/></p></body></html>"))
         self.btn_SaveLog.setText(_translate("MainWindow", "Save Log"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))

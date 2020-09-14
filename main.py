@@ -285,14 +285,22 @@ class Main(QMainWindow):
 
             self.debug_append_log("VC Parameters: " + str(param), "debug")
             vcdata = self.vc.pull("students", parameters=param)
-            ls_customerTypeID = self.ls_customer_types["Student"]
+            try:
+                ls_customerTypeID = self.ls_customer_types["Student"]
+            except:
+                self.debug_append_log("Unable to get CustomerType of Student from Lightspeed. "
+                                      "Check name of CustomerType in Lightspeed.", "info")
 
         elif self.ui.combo_SyncVCUserType.currentText() == "Faculty Staff":
             self.debug_append_log("Getting Veracross Faculty Staff (Faculty and Staff)", "info")
             param.update({"roles": "1,2"})
             self.debug_append_log("VC Parameters: " + str(param), "debug")
             vcdata = self.vc.pull("facstaff", parameters=param)
-            ls_customerTypeID = self.ls_customer_types["FacultyStaff"]
+            try:
+                ls_customerTypeID = self.ls_customer_types["FacultyStaff"]
+            except:
+                self.debug_append_log("Unable to get CustomerType of FacultyStaff from Lightspeed. "
+                                      "Check name of CustomerType in Lightspeed.", "info")
 
         else:
             self.debug_append_log("Select Veracross User Type first.", "info")

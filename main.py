@@ -764,8 +764,12 @@ class Main(QMainWindow):
             filename = filename + '/lightspeed_salelines_export_' + \
                        str(ct) + \
                        "_" + \
-                       datetime.datetime.now().strftime('%s') + '.csv'
+                       datetime.datetime.now().strftime('%m-%d-%Y') + '.csv'
+            self.debug_append_log(str(filename), "info")
+        except:
+            self.debug_append_log("Unable to determine export file.", "info")
 
+        try:
             with open(filename, 'w', encoding='utf-8') as file:
                 salelines_writer = csv.writer(file, dialect='excel', quoting=csv.QUOTE_ALL, quotechar='"')
 
@@ -777,7 +781,6 @@ class Main(QMainWindow):
 
         except:
             self.debug_append_log("Failed to format CSV SaleLine data.", "info")
-            self.debug_append_log(sys.exc_info()[0], "debug")
             return None
 
         # !! Account Balance Export !!
@@ -830,7 +833,8 @@ class Main(QMainWindow):
             filename = filename + '/lightspeed_balance_export_' + \
                        str(ct) +\
                        "_" +\
-                       datetime.datetime.now().strftime('%s') + '.csv'
+                       datetime.datetime.now().strftime('%m-%d-%Y') + '.csv'
+
             filepath = open(filename, 'w', encoding='utf-8')
             with filepath:
                 writer = csv.writer(filepath, dialect='excel', quoting=csv.QUOTE_ALL, quotechar="'")

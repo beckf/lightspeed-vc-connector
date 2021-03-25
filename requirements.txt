@@ -22,7 +22,7 @@ PyQt5==5.14.1
 PyQt5-sip==12.7.1
 PyQtWebEngine==5.14.0
 pytz==2019.3
-PyYAML==5.3
+PyYAML==5.4
 requests==2.23.0
 sip==5.1.1
 six==1.14.0

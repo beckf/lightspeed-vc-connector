@@ -16,7 +16,6 @@ class Ui_MainWindow(object):
         MainWindow.resize(663, 712)
         font = QtGui.QFont()
         font.setFamily("Roboto")
-        font.setPointSize(-1)
         MainWindow.setFont(font)
         MainWindow.setAutoFillBackground(False)
         MainWindow.setStyleSheet("QMainWindow{\n"

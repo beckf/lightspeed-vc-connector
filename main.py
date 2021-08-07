@@ -14,6 +14,7 @@ import config
 import csv
 from decimal import Decimal, ROUND_HALF_UP
 import images
+import logging
 import traceback
 import update
 
@@ -23,6 +24,11 @@ if hasattr(Qt, 'AA_EnableHighDpiScaling'):
 
 if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+
+# Setup Logfile
+logfile = os.environ['USERPROFILE'] + "\\LSVCConnectorLog.txt"
+logging.basicConfig(filename=logfile)
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Worker(QRunnable):
@@ -100,7 +106,7 @@ class Main(QMainWindow):
 
         self.threadpool = QThreadPool()
         self.debug_append_log("Multithreading enabled with maximum %d threads." % self.threadpool.maxThreadCount(),
-                              "info")
+                              "window,info")
 
         # Output some debug stuff for cmdline
         try:
@@ -129,6 +135,7 @@ class Main(QMainWindow):
                                            "The password provided will not decrypt the settings.",
                                            QMessageBox.Ok)
 
+        # Initialize Veracross and Lightspeed connection
         self.vc = veracross_api.Veracross(self.c)
         self.ls = lightspeed_api.Lightspeed(self.c)
 
@@ -237,9 +244,9 @@ class Main(QMainWindow):
         # Check for Updates
         try:
             if self.version.update_avail():
-                self.debug_append_log("Updated Version Available!", "info")
+                self.debug_append_log("Updated Version Available!", "window,info")
         except:
-            self.debug_append_log("Error checking for updates.", "debug")
+            self.debug_append_log("Error checking for updates.", "window,debug")
 
     def create_update_customer_worker(self):
         """
@@ -255,14 +262,14 @@ class Main(QMainWindow):
         Signal when create_update_customer is complete
         :return:
         """
-        self.debug_append_log("User Sync Complete.", "info")
+        self.debug_append_log("User Sync Complete.", "window,info")
 
     def create_update_customer(self):
 
         param = {}
         # Make sure we have a lastsync and veracross id field mapped.
         if self.veracrossid_field is None or self.lastsync_field is None:
-            self.debug_append_log("Enter valid map fields for VeracrossID and LastSync first.", "info")
+            self.debug_append_log("Enter valid map fields for VeracrossID and LastSync first.", "window,info")
             return None
 
         # Determine if we are syncing VC changes after particular date and update params set to VC.
@@ -272,7 +279,7 @@ class Main(QMainWindow):
 
         # If we are working with students, add additional parameters.
         if self.ui.combo_SyncVCUserType.currentText() == "Students":
-            self.debug_append_log("Getting Veracross Students (Current)", "info")
+            self.debug_append_log("Getting Veracross Students (Current)", "window,info")
 
             # Add a grade level filter
             if not self.ui.combo_SyncGradeLevel.currentText() == "None":
@@ -296,12 +303,12 @@ class Main(QMainWindow):
                 ls_customerTypeID = self.ls_customer_types["Student"]
             except:
                 self.debug_append_log("Unable to get CustomerType of Student from Lightspeed. "
-                                      "Check name of CustomerType in Lightspeed.", "info")
+                                      "Check name of CustomerType in Lightspeed.", "window,info")
 
         # Determine if we want FacultyStaff from VC
         elif self.ui.combo_SyncVCUserType.currentText() == "Faculty Staff":
             # Let user know whats up
-            self.debug_append_log("Getting Veracross Faculty Staff (Faculty and Staff)", "info")
+            self.debug_append_log("Getting Veracross Faculty Staff (Faculty and Staff)", "window,info")
             # Limit to roles 1 & 2 in VC Api.
             param.update({"roles": "1,2"})
 
@@ -316,15 +323,18 @@ class Main(QMainWindow):
                 ls_customerTypeID = self.ls_customer_types["FacultyStaff"]
             except:
                 self.debug_append_log("Unable to get CustomerType of FacultyStaff from Lightspeed. "
-                                      "Check name of CustomerType in Lightspeed.", "info")
+                                      "Check name of CustomerType in Lightspeed.", "window,info")
 
         # User did not select a user type
         else:
-            self.debug_append_log("Select Veracross User Type first.", "info")
+            self.debug_append_log("Select Veracross User Type first.", "window,info")
             return None
 
         # Loop through the data from VC.
         for i in vcdata:
+
+            self.debug_append_log("Processing VC Record {}".format(i["person_pk"]), "debug")
+
             # Get household data for this person
             hh = self.vc.pull("households/" + str(i["household_fk"]))
             h = hh["household"]
@@ -458,11 +468,22 @@ class Main(QMainWindow):
                                           "info")
             else:
                 # Add new user when not found in LS
-                new_customer = self.ls.create("Customer", vc_formatted["Customer"])
-                self.debug_append_log("New Customer # {} Added: {} {}".format(new_customer['Customer']['customerID'],
-                                                                              new_customer['Customer']['firstName'],
-                                                                              new_customer['Customer']['lastName']),
-                                      "info")
+                self.debug_append_log("Adding new Lightspeed Customer for {} {}".format(
+                    vc_formatted['Customer']['firstName'],
+                    vc_formatted['Customer']['lastName']),
+                    "info")
+                try:
+                    new_customer = self.ls.create("Customer", vc_formatted["Customer"])
+                    self.debug_append_log(
+                        "New Customer # {} Added: {} {}".format(new_customer['Customer']['customerID'],
+                                                                new_customer['Customer']['firstName'],
+                                                                new_customer['Customer']['lastName']),
+                        "info")
+                except:
+                    self.debug_append_log("Unable to add new Lightspeed Customer for {} {}".format(
+                        vc_formatted['Customer']['firstName'],
+                        vc_formatted['Customer']['lastName']),
+                        "info")
 
     def delete_customer_worker(self):
         """
@@ -478,14 +499,14 @@ class Main(QMainWindow):
         Signal for when delete_customer is complete.
         :return:
         """
-        self.debug_append_log("Inactive user delete complete.", "info")
+        self.debug_append_log("Inactive user delete complete.", "window,info")
 
     def delete_customer(self):
         """
         Delete records in Lightspeed.  Filters customers to those that have a companyRegistrationNumber
         :return:
         """
-        self.debug_append_log("Checking for customers to delete.", "info")
+        self.debug_append_log("Checking for customers to delete.", "window,info")
 
         valid_vc_ids = []
         for i in self.vc.pull("facstaff", parameters=dict(roles='1,2')):
@@ -525,7 +546,7 @@ class Main(QMainWindow):
         Signal for when export_charge is complete.
         :return:
         """
-        self.debug_append_log("File export complete.", "info")
+        self.debug_append_log("File export complete.", "window,info")
 
     def export_charge_balance(self):
         """
@@ -534,7 +555,7 @@ class Main(QMainWindow):
         """
         # Warn about debugging
         if self.ui.chk_DebugExport.isChecked():
-            self.debug_append_log("Export debugging enabled.", "info")
+            self.debug_append_log("Export debugging enabled.", "window,info")
 
         # Set current Timezone
         current_store = self.ui.combo_ExportShopSelect.currentText()
@@ -544,7 +565,7 @@ class Main(QMainWindow):
         shop_timezone_utc_offset_iso = shop_timezone_utc_offset[:3] + ":" + shop_timezone_utc_offset[3:]
         self.debug_append_log(
             "Found %s timezone for shop named %s." % (shop_timezone_name, self.ls_shops[current_store]["name"]),
-            "info")
+            "window,info")
 
         # Customer Type
         ct = str(self.ui.combo_CustomerType.currentText())
@@ -562,11 +583,11 @@ class Main(QMainWindow):
 
         # Ensure there is an export location
         if len(self.ui.line_ExportFolder.text()) == 0:
-            self.debug_append_log("Missing export folder location.", "info")
+            self.debug_append_log("Missing export folder location.", "window,info")
             self.select_export_directory()
 
         # Notify UI
-        self.debug_append_log("Export started for customer type: " + str(ct), "info")
+        self.debug_append_log("Export started for customer type: " + str(ct), "window,info")
 
         # !! Sale Line Export !!
 
@@ -792,7 +813,7 @@ class Main(QMainWindow):
                        datetime.datetime.now().strftime('%m-%d-%Y') + '.csv'
             self.debug_append_log(str(filename), "info")
         except:
-            self.debug_append_log("Unable to determine export file.", "info")
+            self.debug_append_log("Unable to determine export file.", "window,info")
 
         try:
             with open(filename, 'w', encoding='utf-8') as file:
@@ -805,7 +826,7 @@ class Main(QMainWindow):
                         self.debug_append_log("Failed to write row %s" % str(row), "info")
 
         except:
-            self.debug_append_log("Failed to format CSV SaleLine data.", "info")
+            self.debug_append_log("Failed to format CSV SaleLine data.", "window,info")
             return None
 
         # !! Account Balance Export !!
@@ -813,7 +834,7 @@ class Main(QMainWindow):
             # Get Customers with Balance on account. Used to export balances and clear accounts.
             customers = self.ls.get("Customer", parameters=dict(load_relations='["CreditAccount"]'))
         except:
-            self.debug_append_log("Unable to get Customer data from Lightspeed.", "info")
+            self.debug_append_log("Unable to get Customer data from Lightspeed.", "window,info")
             return None
 
         try:
@@ -866,7 +887,7 @@ class Main(QMainWindow):
                 for row in export_data:
                     writer.writerow(row)
         except:
-            self.debug_append_log("Failed to export CSV balance data.", "info")
+            self.debug_append_log("Failed to export CSV balance data.", "window,info")
             return None
 
     def clear_account_balances(self, customerID, balance, paymentID, creditAccountID, emp_id):
@@ -897,7 +918,7 @@ class Main(QMainWindow):
                                 }
                             }
         except:
-            self.debug_append_log("Unable to format data to clear balances.", "info")
+            self.debug_append_log("Unable to format data to clear balances.", "window,info")
 
         try:
             self.ls.create('Sale', data=formatted_request)
@@ -913,13 +934,13 @@ class Main(QMainWindow):
             for i in ct['CustomerType']:
                 self.ls_customer_types[i["name"]] = i["customerTypeID"]
         except:
-            self.debug_append_log("Cannot get customer types from API, or none exist.", "info")
+            self.debug_append_log("Cannot get customer types from API, or none exist.", "window,info")
         # Update UI
         try:
             self.ui.combo_CustomerType.clear()
             self.ui.combo_CustomerType.addItems(self.ls_customer_types.keys())
         except:
-            self.debug_append_log("Error getting customer types.", "info")
+            self.debug_append_log("Error getting customer types.", "window,info")
 
     def get_payment_types(self):
         try:
@@ -927,19 +948,19 @@ class Main(QMainWindow):
             for i in pt['PaymentType']:
                 self.ls_payment_types[i["name"]] = i["paymentTypeID"]
         except:
-            self.debug_append_log("Cannot get payment types from API.", "info")
+            self.debug_append_log("Cannot get payment types from API.", "window,info")
 
         # Update UI
         try:
             self.ui.combo_PaymentType.clear()
             self.ui.combo_PaymentType.addItems(self.ls_payment_types.keys())
         except:
-            self.debug_append_log("Error getting payment types.", "info")
+            self.debug_append_log("Error getting payment types.", "window,info")
 
         try:
             self.ui.combo_PaymentType.setCurrentIndex(self.ui.combo_PaymentType.findText("Credit Account"))
         except:
-            self.debug_append_log("Unable to set default payment type to Credit Account.", "info")
+            self.debug_append_log("Unable to set default payment type to Credit Account.", "window,info")
 
     def get_CustomField(self):
         """
@@ -965,9 +986,9 @@ class Main(QMainWindow):
             self.debug_append_log("Something went wrong when trying to match custom import fields!", "debug")
 
         if self.veracrossid_field is None:
-            self.debug_append_log("Unable to find Lightspeed custom import field for VeracrossID.", "info")
+            self.debug_append_log("Unable to find Lightspeed custom import field for VeracrossID.", "window,info")
         if self.lastsync_field is None:
-            self.debug_append_log("Unable to find Lightspeed custom import field for LastSync.", "info")
+            self.debug_append_log("Unable to find Lightspeed custom import field for LastSync.", "window,info")
 
     def get_shops(self):
         try:
@@ -985,7 +1006,7 @@ class Main(QMainWindow):
             self.ui.combo_ExportShopSelect.clear()
             self.ui.combo_ExportShopSelect.addItems(self.ls_shops.keys())
         except:
-            self.debug_append_log("Error adding shops to UI.", "info")
+            self.debug_append_log("Error adding shops to UI.", "window,info")
             self.debug_append_log(str(self.ls_shops), "debug")
 
     def get_employees(self):
@@ -999,14 +1020,14 @@ class Main(QMainWindow):
                 name = emp["Shop"]["firstName"] + " " + emp["Shop"]["lastName"] + " ID:" + emp["Shop"]["employeeID"]
                 self.ls_employee[name] = emp['Employee']
         except:
-            self.debug_append_log("Error getting employees from LS.", "info")
+            self.debug_append_log("Error getting employees from LS.", "window,info")
 
         # Update Shops in UI
         try:
             self.ui.combo_ClearChargesEmployee.clear()
             self.ui.combo_ClearChargesEmployee.addItems(self.ls_employee.keys())
         except:
-            self.debug_append_log("Error adding employees to UI.", "info")
+            self.debug_append_log("Error adding employees to UI.", "window,info")
             self.debug_append_log(str(self.ls_employee), "debug")
 
     def authorize_app(self):
@@ -1029,11 +1050,11 @@ class Main(QMainWindow):
     def authorization_complete(self):
         code = self.authorize_window.interceptor.code
         self.authorize_window.view.hide()
-        self.debug_append_log('Authorization Code Returned: ' + code, "info")
+        self.debug_append_log('Authorization Code Returned: ' + code, "window,info")
 
         if len(code) > 0:
              token = self.ls.get_authorization_token(code)
-             self.debug_append_log('Refresh Token Returned: ' + token, "info")
+             self.debug_append_log('Refresh Token Returned: ' + token, "window,info")
              self.ui.txt_RefreshToken.setText(token)
              QMessageBox.question(self, 'Application Authorized with Lightspeed',
                                   "Application is now authorized with your Lightspeed account. "
@@ -1047,10 +1068,21 @@ class Main(QMainWindow):
         :param text:
         :return:
         """
-        if level is "debug" and self.ui.chk_DebugExport.isChecked():
-            self.ui.txtb_SyncLog.append(text)
-        if level is "info":
-            self.ui.txtb_SyncLog.append(text)
+        try:
+            if "window" in level:
+                self.ui.txtb_SyncLog.append(text)
+        except:
+            traceback.print_exc()
+        try:
+            if "debug" in level and self.ui.chk_DebugExport.isChecked():
+                logging.warning(text)
+        except:
+            traceback.print_exc()
+        try:
+            if "info" in level:
+                logging.warning(text)
+        except:
+            traceback.print_exc()
 
     def roundup_decimal(self,x):
         """
@@ -1073,7 +1105,7 @@ class Main(QMainWindow):
                 with filepath:
                     filepath.write(self.ui.txtb_SyncLog.toPlainText())
         except:
-            self.debug_append_log("Unable to save log file.", "info")
+            self.debug_append_log("Unable to save log file.", "window,info")
 
     def save_settings_button(self):
         """
@@ -1134,7 +1166,7 @@ class Main(QMainWindow):
             self.ui.textBrowser_License.setText("Unable to read license file.")
 
     def reveal_hidden(self):
-        self.debug_append_log("Revealing hidden settings!", "info")
+        self.debug_append_log("Revealing hidden settings!", "window,info")
         self.ui.txt_RefreshToken.setEchoMode(QLineEdit.Normal)
         self.ui.txt_DevelSecret.setEchoMode(QLineEdit.Normal)
         self.ui.txt_LSDevelID.setEchoMode(QLineEdit.Normal)

@@ -260,15 +260,17 @@ class Main(QMainWindow):
     def create_update_customer(self):
 
         param = {}
-
+        # Make sure we have a lastsync and veracross id field mapped.
         if self.veracrossid_field is None or self.lastsync_field is None:
             self.debug_append_log("Enter valid map fields for VeracrossID and LastSync first.", "info")
             return None
 
+        # Determine if we are syncing VC changes after particular date and update params set to VC.
         if self.ui.checkBox_SyncChangesAfterDate.isChecked():
             updated_after_ui = self.ui.dateEdit_SyncUpdatedAfterDate.date()
             param.update({"updated_after": str(updated_after_ui.toPyDate())})
 
+        # If we are working with students, add additional parameters.
         if self.ui.combo_SyncVCUserType.currentText() == "Students":
             self.debug_append_log("Getting Veracross Students (Current)", "info")
 
@@ -283,36 +285,55 @@ class Main(QMainWindow):
             # Limit to only current students
             param.update({"option": "2"})
 
+            # Show our parameters to debug log
             self.debug_append_log("VC Parameters: " + str(param), "debug")
+
+            # Get Veracross data for students
             vcdata = self.vc.pull("students", parameters=param)
+
+            # Get Lightspeed id number that matches customer_type Student
             try:
                 ls_customerTypeID = self.ls_customer_types["Student"]
             except:
                 self.debug_append_log("Unable to get CustomerType of Student from Lightspeed. "
                                       "Check name of CustomerType in Lightspeed.", "info")
 
+        # Determine if we want FacultyStaff from VC
         elif self.ui.combo_SyncVCUserType.currentText() == "Faculty Staff":
+            # Let user know whats up
             self.debug_append_log("Getting Veracross Faculty Staff (Faculty and Staff)", "info")
+            # Limit to roles 1 & 2 in VC Api.
             param.update({"roles": "1,2"})
+
+            # Show parameters to debug log
             self.debug_append_log("VC Parameters: " + str(param), "debug")
+
+            # Get Veracross data for Faculty Staff
             vcdata = self.vc.pull("facstaff", parameters=param)
+
+            # Determine what Lightspeed customer id number for FacStaff
             try:
                 ls_customerTypeID = self.ls_customer_types["FacultyStaff"]
             except:
                 self.debug_append_log("Unable to get CustomerType of FacultyStaff from Lightspeed. "
                                       "Check name of CustomerType in Lightspeed.", "info")
 
+        # User did not select a user type
         else:
             self.debug_append_log("Select Veracross User Type first.", "info")
             return None
 
+        # Loop through the data from VC.
         for i in vcdata:
-
+            # Get household data for this person
             hh = self.vc.pull("households/" + str(i["household_fk"]))
             h = hh["household"]
+
+            # Set search parameters for lightspeed and see if we find someone in LS.
             lsparam = dict(load_relations='all', limit=1, companyRegistrationNumber=str(i["person_pk"]))
             check_current = self.ls.get("Customer", parameters=lsparam)
-            # Format data. First name will format later.
+
+            # Format data to how it should look. First name will format later.
             vc_formatted = {'Customer':
                                 {'firstName': '',
                                  'lastName': i["last_name"],
@@ -356,14 +377,19 @@ class Main(QMainWindow):
                                      ]}
                                  }
                             }
+
             # Update data to use correct nick name format from VC.
+            # Added becuase of bug in VC API where sometimes one is returned over other.
             if 'nick_first_name' in i:
                 vc_formatted['Customer']['firstName'] = i['nick_first_name']
             elif 'first_nick_name' in i:
                 vc_formatted['Customer']['firstName'] = i['first_nick_name']
 
+            # Did we find a record in lighspeed to sync to?
             if int(check_current["@attributes"]["count"]) >= 1:
 
+                # Create two dictionaries one for VC and the other for LS
+                # We will see if they match later.
                 vc_person = dict()
                 ls_customer = dict()
 
@@ -419,8 +445,7 @@ class Main(QMainWindow):
                     ls_customer["zip"] = ''
                     ls_customer["state"] = ''
 
-
-                # Compare the data
+                # Compare the data. Are the two dictionaries the same...
                 if not ls_customer == vc_person:
                     self.debug_append_log("Updating customer {} {}.".format(vc_formatted['Customer']['firstName'],
                                                                                 vc_formatted['Customer']['lastName']),

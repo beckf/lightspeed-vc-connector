@@ -26,7 +26,7 @@ if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 # Setup Logfile
-logfile = os.environ['USERPROFILE'] + "\\LSVCConnectorLog.txt"
+logfile = os.environ['TEMP'] + "\\LSVCConnectorLog-" + str(datetime.date.today()) +".txt"
 logging.basicConfig(filename=logfile)
 logging.basicConfig(level=logging.DEBUG)
 
@@ -151,7 +151,7 @@ class Main(QMainWindow):
         self.ui.btn_GetPaymentTypes.clicked.connect(self.get_payment_types)
         self.ui.btn_Authorize.clicked.connect(self.authorize_app)
         self.ui.btn_ChangeEncPassword.clicked.connect(self.change_password)
-        self.ui.btn_SaveLog.clicked.connect(self.save_log_to_file)
+        self.ui.btn_OpenLog.clicked.connect(self.open_log_to_file)
 
         # Settings Buttons
         self.ui.btn_SaveSettings.clicked.connect(self.save_settings_button)
@@ -181,6 +181,9 @@ class Main(QMainWindow):
         # Keyboard Shortcuts
         self.key_reveal_hidden_settings = QShortcut(QKeySequence("Ctrl+Shift+R"), self)
         self.key_reveal_hidden_settings.activated.connect(self.reveal_hidden)
+
+        # Progress bar zero at start
+        self.ui.progressBar.setValue(0)
 
         if "vcuser" in self.c.keys():
             self.ui.txt_VCUser.setText(self.c["vcuser"])
@@ -330,8 +333,19 @@ class Main(QMainWindow):
             self.debug_append_log("Select Veracross User Type first.", "window,info")
             return None
 
+        # Going to use progress bar.  Make sure it is at zero first.
+        self.ui.progressBar.setValue(0)
+
+        # Determine each increment for progress bar.
+        increment = 100 / len(vcdata)
+        total_increment = 0
+
         # Loop through the data from VC.
         for i in vcdata:
+
+            # increment the progress bar.
+            total_increment = total_increment + increment
+            self.ui.progressBar.setValue(int(total_increment))
 
             self.debug_append_log("Processing VC Record {}".format(i["person_pk"]), "debug")
 
@@ -456,7 +470,7 @@ class Main(QMainWindow):
                     ls_customer["state"] = ''
 
                 # Compare the data. Are the two dictionaries the same...
-                if not ls_customer == vc_person:
+                if not ls_customer == vc_person or self.ui.checkBox_ForceSync.isChecked():
                     self.debug_append_log("Updating customer {} {}.".format(vc_formatted['Customer']['firstName'],
                                                                                 vc_formatted['Customer']['lastName']),
                                           "info")
@@ -1096,16 +1110,13 @@ class Main(QMainWindow):
         self.export_dir = QFileDialog.getExistingDirectory(self, 'Select Directory for Export')
         self.ui.line_ExportFolder.setText(self.export_dir)
 
-    def save_log_to_file(self):
-        log_dir = QFileDialog.getExistingDirectory(self, 'Select Directory to Save Log')
-        filename = log_dir + str("/LSVCConnector.log")
+    def open_log_to_file(self):
+        filename = os.environ['TEMP'] + "\\LSVCConnectorLog-" + str(datetime.date.today()) +".txt"
         try:
-            if os.path.isdir(log_dir):
-                filepath = open(filename, 'w')
-                with filepath:
-                    filepath.write(self.ui.txtb_SyncLog.toPlainText())
+            if os.path.isfile(filename):
+                os.startfile(filename)
         except:
-            self.debug_append_log("Unable to save log file.", "window,info")
+            self.debug_append_log("Unable to open log file.", "window,info")
 
     def save_settings_button(self):
         """

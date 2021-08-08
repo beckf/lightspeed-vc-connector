@@ -27,6 +27,5 @@ requests>=2.23.0
 sip>=5.1.1
 six>=1.14.0
 toml>=0.10.0
-typing>=3.7.4.1
 urllib3>=1.25.8
 veracross-api>=1.0

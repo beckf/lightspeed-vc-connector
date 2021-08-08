@@ -83,7 +83,7 @@ max-height: 16px;
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <property name="usesScrollButtons">
      <bool>false</bool>
@@ -98,24 +98,10 @@ max-height: 16px;
         <x>10</x>
         <y>70</y>
         <width>611</width>
-        <height>71</height>
+        <height>91</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_3">
-       <item row="0" column="0">
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>VC User Type</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_27">
-         <property name="text">
-          <string>Only Simulate Deleting Inactive Users</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="1">
         <widget class="QComboBox" name="combo_SyncVCUserType">
          <item>
@@ -137,6 +123,34 @@ max-height: 16px;
        </item>
        <item row="1" column="1">
         <widget class="QCheckBox" name="checkBox_SyncSimulateDelete">
+         <property name="text">
+          <string>Enable</string>
+         </property>
+        </widget>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="label_3">
+         <property name="text">
+          <string>VC User Type</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_27">
+         <property name="text">
+          <string>Only Simulate Deleting Inactive Users</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_16">
+         <property name="text">
+          <string>Force Sync</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QCheckBox" name="checkBox_ForceSync">
          <property name="text">
           <string>Enable</string>
          </property>
@@ -186,7 +200,7 @@ max-height: 16px;
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>150</y>
+        <y>190</y>
         <width>611</width>
         <height>161</height>
        </rect>
@@ -1042,7 +1056,7 @@ max-height: 16px;
       <x>10</x>
       <y>50</y>
       <width>641</width>
-      <height>141</height>
+      <height>111</height>
      </rect>
     </property>
    </widget>
@@ -1087,18 +1101,32 @@ max-height: 16px;
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btn_SaveLog">
+      <widget class="QPushButton" name="btn_OpenLog">
        <property name="text">
-        <string>Save Log</string>
+        <string>Open Log</string>
        </property>
       </widget>
      </item>
     </layout>
    </widget>
+   <widget class="QProgressBar" name="progressBar">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>170</y>
+      <width>641</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="value">
+     <number>24</number>
+    </property>
+   </widget>
    <zorder>lbl_Icon</zorder>
    <zorder>tabs</zorder>
    <zorder>txtb_SyncLog</zorder>
    <zorder>horizontalLayoutWidget_2</zorder>
+   <zorder>progressBar</zorder>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -1115,7 +1143,7 @@ max-height: 16px;
      <x>0</x>
      <y>0</y>
      <width>663</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

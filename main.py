@@ -247,7 +247,9 @@ class Main(QMainWindow):
         # Check for Updates
         try:
             if self.version.update_avail():
-                self.debug_append_log("Updated Version Available!", "window,info")
+                self.debug_append_log("Updated Version Available! "
+                                      "Download at https://github.com/beckf/lightspeed-vc-connector/releases/latest",
+                                      "window,info")
         except:
             self.debug_append_log("Error checking for updates.", "window,debug")
 

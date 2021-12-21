@@ -44,4 +44,20 @@ class Update:
         except:
             return False
 
+    def latest_description(self):
+        """
+        Return description of latest release
+        :return: String Text
+        """
+        try:
+            r = requests.get(self.project_url + '/releases/latest')
+
+            if r.status_code == 200:
+                d = r.json()
+                if "body" in d:
+                    return d["body"]
+                else:
+                    return ""
+        except:
+            return ""
 

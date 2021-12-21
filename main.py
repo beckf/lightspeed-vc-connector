@@ -11,7 +11,7 @@ import os
 import datetime
 import pytz
 import config
-import csv
+import pandas
 from decimal import Decimal, ROUND_HALF_UP
 import images
 import logging
@@ -247,9 +247,11 @@ class Main(QMainWindow):
         # Check for Updates
         try:
             if self.version.update_avail():
-                self.debug_append_log("Updated Version Available! "
-                                      "Download at https://github.com/beckf/lightspeed-vc-connector/releases/latest",
-                                      "window,info")
+                self.debug_append_log("Updated Version Available!", "window,info")
+                self.debug_append_log("Latest Description:", "info,window")
+                self.debug_append_log(self.version.latest_description(), "window,info")
+                self.debug_append_log("Download at "
+                                      "https://github.com/beckf/lightspeed-vc-connector/releases/latest", "window,info")
         except:
             self.debug_append_log("Error checking for updates.", "window,debug")
 
@@ -833,25 +835,18 @@ class Main(QMainWindow):
         try:
             filename = str(self.ui.line_ExportFolder.text())
             filename = filename + '/lightspeed_salelines_export_' + \
-                       str(ct) + \
-                       "_" + \
-                       datetime.datetime.now().strftime('%m-%d-%Y') + '.csv'
+                       datetime.datetime.now().strftime('%m%d%Y-%H%m%S') + '.xlsx'
             self.debug_append_log(str(filename), "info")
         except:
             self.debug_append_log("Unable to determine export file.", "window,info")
 
         try:
-            with open(filename, 'w', encoding='utf-8') as file:
-                salelines_writer = csv.writer(file, dialect='excel', quoting=csv.QUOTE_ALL, quotechar='"')
-
-                for row in saleline_export_data:
-                    try:
-                        salelines_writer.writerow(row)
-                    except:
-                        self.debug_append_log("Failed to write row %s" % str(row), "info")
-
+            writer = pandas.ExcelWriter(filename, engine='xlsxwriter')
+            panda_data = pandas.DataFrame(saleline_export_data)
+            panda_data.to_excel(writer, sheet_name='Sheet1', header=False, index=False)
+            writer.save()
         except:
-            self.debug_append_log("Failed to format CSV SaleLine data.", "window,info")
+            self.debug_append_log("Failed to format XLSX SaleLine data.", "window,info")
             return None
 
         # !! Account Balance Export !!
@@ -902,17 +897,14 @@ class Main(QMainWindow):
         try:
             filename = str(self.ui.line_ExportFolder.text())
             filename = filename + '/lightspeed_balance_export_' + \
-                       str(ct) +\
-                       "_" +\
-                       datetime.datetime.now().strftime('%m-%d-%Y') + '.csv'
+                       datetime.datetime.now().strftime('%m%d%Y-%H%m%S') + '.xlsx'
 
-            filepath = open(filename, 'w', encoding='utf-8')
-            with filepath:
-                writer = csv.writer(filepath, dialect='excel', quoting=csv.QUOTE_ALL, quotechar="'")
-                for row in export_data:
-                    writer.writerow(row)
+            writer = pandas.ExcelWriter(filename, engine='xlsxwriter')
+            panda_data = pandas.DataFrame(export_data)
+            panda_data.to_excel(writer, sheet_name='Sheet1', header=False, index=False)
+            writer.save()
         except:
-            self.debug_append_log("Failed to export CSV balance data.", "window,info")
+            self.debug_append_log("Failed to export XLSX balance data.", "window,info")
             return None
 
         # Finish of progress bar

@@ -2,7 +2,7 @@
 
 This is a PyQT application developed to provide integration between Veracross and Lightspeed.
 
-For more information see ![alt text](https://github.com/beckf/lightspeed-vc-connector/wiki "WiKi")
+For more information see ![WiKi](https://github.com/beckf/lightspeed-vc-connector/wiki "WiKi")
 
 [Features](#features)
 

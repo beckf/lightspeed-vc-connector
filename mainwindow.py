@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt-lightspeed-pos-vc-connector\mainwindow.ui'
+# Form implementation generated from reading ui file 'mainwindow.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.4
 #
@@ -157,7 +157,6 @@ class Ui_MainWindow(object):
         self.label_15 = QtWidgets.QLabel(self.gridLayoutWidget_6)
         font = QtGui.QFont()
         font.setBold(True)
-        font.setWeight(75)
         self.label_15.setFont(font)
         self.label_15.setObjectName("label_15")
         self.gridLayout_6.addWidget(self.label_15, 0, 0, 1, 1)
@@ -440,6 +439,9 @@ class Ui_MainWindow(object):
         self.chk_DebugExport.setText("")
         self.chk_DebugExport.setObjectName("chk_DebugExport")
         self.gridLayout.addWidget(self.chk_DebugExport, 8, 1, 1, 1)
+        self.btn_ExportSettings = QtWidgets.QPushButton(self.gridLayoutWidget)
+        self.btn_ExportSettings.setObjectName("btn_ExportSettings")
+        self.gridLayout.addWidget(self.btn_ExportSettings, 9, 0, 1, 1)
         self.tabs.addTab(self.tab_Settings, "")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
@@ -526,7 +528,7 @@ class Ui_MainWindow(object):
         self.statusBar.setObjectName("statusBar")
         MainWindow.setStatusBar(self.statusBar)
         self.menuBar = QtWidgets.QMenuBar(MainWindow)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 663, 21))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 663, 24))
         self.menuBar.setObjectName("menuBar")
         self.menuFile = QtWidgets.QMenu(self.menuBar)
         self.menuFile.setObjectName("menuFile")
@@ -537,7 +539,7 @@ class Ui_MainWindow(object):
         self.menuBar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabs.setCurrentIndex(0)
+        self.tabs.setCurrentIndex(4)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -621,6 +623,7 @@ class Ui_MainWindow(object):
         self.label_8.setText(_translate("MainWindow", "VC Password"))
         self.label_9.setText(_translate("MainWindow", "VC API URL"))
         self.label_36.setText(_translate("MainWindow", "Enable Debugging"))
+        self.btn_ExportSettings.setText(_translate("MainWindow", "Export Settings"))
         self.tabs.setTabText(self.tabs.indexOf(self.tab_Settings), _translate("MainWindow", "Settings"))
         self.label_18.setText(_translate("MainWindow", "Enter New Password (10 characters min)"))
         self.btn_ChangeEncPassword.setText(_translate("MainWindow", "Change Password"))
@@ -636,3 +639,13 @@ class Ui_MainWindow(object):
         self.btn_OpenLog.setText(_translate("MainWindow", "Open Log"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionQuit.setText(_translate("MainWindow", "Quit"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())

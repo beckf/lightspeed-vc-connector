@@ -83,7 +83,7 @@ max-height: 16px;
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>4</number>
     </property>
     <property name="usesScrollButtons">
      <bool>false</bool>
@@ -327,7 +327,6 @@ max-height: 16px;
          <widget class="QLabel" name="label_15">
           <property name="font">
            <font>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -928,6 +927,13 @@ max-height: 16px;
          </property>
         </widget>
        </item>
+       <item row="9" column="0">
+        <widget class="QPushButton" name="btn_ExportSettings">
+         <property name="text">
+          <string>Export Settings</string>
+         </property>
+        </widget>
+       </item>
       </layout>
      </widget>
     </widget>
@@ -1143,7 +1149,7 @@ max-height: 16px;
      <x>0</x>
      <y>0</y>
      <width>663</width>
-     <height>21</height>
+     <height>24</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

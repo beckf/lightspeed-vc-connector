@@ -17,6 +17,7 @@ import images
 import logging
 import traceback
 import update
+import json
 
 # Set Scaling for High Resolution Displays
 if hasattr(Qt, 'AA_EnableHighDpiScaling'):
@@ -155,6 +156,7 @@ class Main(QMainWindow):
 
         # Settings Buttons
         self.ui.btn_SaveSettings.clicked.connect(self.save_settings_button)
+        self.ui.btn_ExportSettings.clicked.connect(self.export_settings)
 
         # Export Tab
         self.ui.chk_ClearCharges.setChecked(False)
@@ -413,7 +415,7 @@ class Main(QMainWindow):
             elif 'first_nick_name' in i:
                 vc_formatted['Customer']['firstName'] = i['first_nick_name']
 
-            # Did we find a record in lighspeed to sync to?
+            # Did we find a record in lightspeed to sync to?
             if check_current:
 
                 # Create two dictionaries one for VC and the other for LS
@@ -1189,6 +1191,11 @@ class Main(QMainWindow):
         self.ui.txt_LSDevelID.setEchoMode(QLineEdit.Normal)
         self.ui.txt_VCUser.setEchoMode(QLineEdit.Normal)
         self.ui.txt_VCPass.setEchoMode(QLineEdit.Normal)
+
+    def export_settings(self):
+        export_dir = QFileDialog.getExistingDirectory(self, 'Select directory to save settings to.')
+        with open(export_dir + "/config.json", "w") as outfile:
+            json.dump(self.c, outfile, indent=4)
 
 
 if __name__ == '__main__':

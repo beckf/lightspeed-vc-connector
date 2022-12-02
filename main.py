@@ -414,7 +414,7 @@ class Main(QMainWindow):
                 vc_formatted['Customer']['firstName'] = i['first_nick_name']
 
             # Did we find a record in lighspeed to sync to?
-            if len(check_current["Customer"]) >= 1:
+            if check_current:
 
                 # Create two dictionaries one for VC and the other for LS
                 # We will see if they match later.

@@ -2,6 +2,8 @@
 
 This is a PyQT application developed to provide integration between Veracross and Lightspeed.
 
+Looking for the CommandLine version? See [LSVCConnector-CMD](https://github.com/beckf/ls-vc-connector-cmd "LSVCConnector-CMD").
+
 For more information see ![WiKi](https://github.com/beckf/lightspeed-vc-connector/wiki "WiKi")
 
 [Features](#features)

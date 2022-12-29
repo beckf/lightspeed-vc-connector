@@ -36,7 +36,8 @@ differently than rounding each individual item.  This is only been noticed when 
 * Multi-Tender On Account Sales: Because each item on an invoice is not associated with the payment type, it is best to 
 avoid mixing credit account sales with other payment types.  The export will find all invoices that have been paid (fully/partially)
 by a credit account. So you run the risk of charging the customer twice. The amount paid with the other tender type will be ignored
-and imported into Veracross.
+and imported into Veracross. This has also been observed if a different tender was created and deleted/removed from the sale before the sale
+is completed.
 * Selling Gift Cards on account has been known to cause problems when importing into Veracross.  It is best to either avoid 
 Gift Cards all together or do not use the credit account as a way to purchase the gift card. 
 

@@ -157,6 +157,7 @@ class Main(QMainWindow):
         # Settings Buttons
         self.ui.btn_SaveSettings.clicked.connect(self.save_settings_button)
         self.ui.btn_ExportSettings.clicked.connect(self.export_settings)
+        self.ui.btn_ImportSettings.clicked.connect(self.import_settings)
 
         # Export Tab
         self.ui.chk_ClearCharges.setChecked(False)
@@ -1196,6 +1197,19 @@ class Main(QMainWindow):
         export_dir = QFileDialog.getExistingDirectory(self, 'Select directory to save settings to.')
         with open(export_dir + "/config.json", "w") as outfile:
             json.dump(self.c, outfile, indent=4)
+
+    def import_settings(self):
+        QMessageBox.question(self, 'Importing Settings',
+                             "Select Import File. Once imported, application will save and quit.",
+                             QMessageBox.Ok)
+        import_file = QFileDialog.getOpenFileName(self, 'Select json config file to import.')
+        if os.path.isfile(import_file[0]):
+            with open(import_file[0], "r") as infile:
+                import_json = json.load(infile)
+                config.save_settings(import_json, "config", self.config_passwd)
+                # Reload Settings
+                self.c = config.load_settings("config", self.config_passwd)
+                self.close()
 
 
 if __name__ == '__main__':

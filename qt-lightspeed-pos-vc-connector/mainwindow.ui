@@ -802,60 +802,40 @@ max-height: 16px;
         <x>10</x>
         <y>10</y>
         <width>611</width>
-        <height>411</height>
+        <height>341</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout">
-       <item row="0" column="0">
-        <widget class="QLabel" name="lbl_SettingsFileLocation">
-         <property name="text">
-          <string>Settings File</string>
-         </property>
-        </widget>
-       </item>
-       <item row="5" column="0">
-        <widget class="QLabel" name="label_7">
-         <property name="text">
-          <string>VC Username</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1">
-        <widget class="QLineEdit" name="txt_LSAccountID"/>
-       </item>
-       <item row="9" column="1">
-        <widget class="QPushButton" name="btn_SaveSettings">
-         <property name="text">
-          <string>Save Settings</string>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1">
-        <widget class="QLineEdit" name="txt_SettingsFileLocation"/>
-       </item>
-       <item row="3" column="1">
-        <widget class="QLineEdit" name="txt_DevelSecret">
+       <item row="6" column="1">
+        <widget class="QLineEdit" name="txt_VCPass">
          <property name="echoMode">
           <enum>QLineEdit::Password</enum>
          </property>
         </widget>
        </item>
-       <item row="4" column="0">
-        <widget class="QLabel" name="label_11">
-         <property name="text">
-          <string>LS Refresh Token</string>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0">
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>LS Developer Client ID</string>
-         </property>
-        </widget>
-       </item>
        <item row="4" column="1">
         <widget class="QLineEdit" name="txt_RefreshToken">
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <widget class="QLineEdit" name="txt_LSDevelID">
+         <property name="echoMode">
+          <enum>QLineEdit::Password</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="8" column="1">
+        <widget class="QCheckBox" name="chk_DebugExport">
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+       </item>
+       <item row="3" column="1">
+        <widget class="QLineEdit" name="txt_DevelSecret">
          <property name="echoMode">
           <enum>QLineEdit::Password</enum>
          </property>
@@ -868,17 +848,10 @@ max-height: 16px;
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
-        <widget class="QLabel" name="label_10">
+       <item row="5" column="0">
+        <widget class="QLabel" name="label_7">
          <property name="text">
-          <string>LS AccountID</string>
-         </property>
-        </widget>
-       </item>
-       <item row="6" column="0">
-        <widget class="QLabel" name="label_8">
-         <property name="text">
-          <string>VC Password</string>
+          <string>VC Username</string>
          </property>
         </widget>
        </item>
@@ -889,27 +862,44 @@ max-height: 16px;
          </property>
         </widget>
        </item>
-       <item row="7" column="1">
-        <widget class="QLineEdit" name="txt_VCAPIURL"/>
+       <item row="0" column="1">
+        <widget class="QLineEdit" name="txt_SettingsFileLocation"/>
        </item>
-       <item row="6" column="1">
-        <widget class="QLineEdit" name="txt_VCPass">
-         <property name="echoMode">
-          <enum>QLineEdit::Password</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="7" column="0">
-        <widget class="QLabel" name="label_9">
+       <item row="6" column="0">
+        <widget class="QLabel" name="label_8">
          <property name="text">
-          <string>VC API URL</string>
+          <string>VC Password</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="1">
-        <widget class="QLineEdit" name="txt_LSDevelID">
-         <property name="echoMode">
-          <enum>QLineEdit::Password</enum>
+       <item row="1" column="0">
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>LS AccountID</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QLabel" name="label_5">
+         <property name="text">
+          <string>LS Developer Client ID</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QLineEdit" name="txt_LSAccountID"/>
+       </item>
+       <item row="0" column="0">
+        <widget class="QLabel" name="lbl_SettingsFileLocation">
+         <property name="text">
+          <string>Settings File</string>
+         </property>
+        </widget>
+       </item>
+       <item row="4" column="0">
+        <widget class="QLabel" name="label_11">
+         <property name="text">
+          <string>LS Refresh Token</string>
          </property>
         </widget>
        </item>
@@ -920,17 +910,49 @@ max-height: 16px;
          </property>
         </widget>
        </item>
-       <item row="8" column="1">
-        <widget class="QCheckBox" name="chk_DebugExport">
+       <item row="7" column="0">
+        <widget class="QLabel" name="label_9">
          <property name="text">
-          <string/>
+          <string>VC API URL</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="0">
+       <item row="7" column="1">
+        <widget class="QLineEdit" name="txt_VCAPIURL"/>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="horizontalLayoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>380</y>
+        <width>611</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetDefaultConstraint</enum>
+       </property>
+       <item>
+        <widget class="QPushButton" name="btn_ImportSettings">
+         <property name="text">
+          <string>Import Settings</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="btn_ExportSettings">
          <property name="text">
           <string>Export Settings</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btn_SaveSettings">
+         <property name="text">
+          <string>Save Settings</string>
          </property>
         </widget>
        </item>
@@ -1149,7 +1171,7 @@ max-height: 16px;
      <x>0</x>
      <y>0</y>
      <width>663</width>
-     <height>24</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

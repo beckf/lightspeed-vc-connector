@@ -1,0 +1,6 @@
+.gitignore
+build
+.idea
+*.log
+__pycache__
+venv

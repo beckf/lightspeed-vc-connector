@@ -847,7 +847,7 @@ class Main(QMainWindow):
             writer = pandas.ExcelWriter(filename, engine='xlsxwriter')
             panda_data = pandas.DataFrame(saleline_export_data)
             panda_data.to_excel(writer, sheet_name='Sheet1', header=False, index=False)
-            writer.save()
+            writer.close()
         except Exception as error:
             self.debug_append_log("Failed to format XLSX SaleLine data.", "window,info")
             self.debug_append_log(error, "debug")
@@ -906,7 +906,7 @@ class Main(QMainWindow):
             writer = pandas.ExcelWriter(filename, engine='xlsxwriter')
             panda_data = pandas.DataFrame(export_data)
             panda_data.to_excel(writer, sheet_name='Sheet1', header=False, index=False)
-            writer.save()
+            writer.close()
         except Exception as error:
             self.debug_append_log("Failed to export XLSX balance data.", "window,info")
             self.debug_append_log(error, "debug")

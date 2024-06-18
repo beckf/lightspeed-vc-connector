@@ -373,18 +373,18 @@ class Main(QMainWindow):
             return None
 
         # Going to use progress bar.  Make sure it is at zero first.
-        self.ui.progressBar.setValue(0)
+        # self.ui.progressBar.setValue(0)
 
         # Determine each increment for progress bar.
-        increment = 100 / len(vcdata)
-        total_increment = 0
+        # increment = 100 / len(vcdata)
+        # total_increment = 0
 
         # Loop through the data from VC.
         for i in vcdata:
 
             # increment the progress bar.
-            total_increment = total_increment + increment
-            self.ui.progressBar.setValue(int(total_increment))
+            # total_increment = total_increment + increment
+            # self.ui.progressBar.setValue(int(total_increment))
 
             self.debug_append_log("Processing VC Record {}".format(i["id"]), "debug")
 
@@ -714,8 +714,8 @@ class Main(QMainWindow):
         for i in salelines['Sale']:
 
             # increment the progress bar.
-            total_increment = total_increment + increment
-            self.ui.progressBar.setValue(int(total_increment))
+            #total_increment = total_increment + increment
+            #self.ui.progressBar.setValue(int(total_increment))
 
             # Does this invoice have a payment that is on account.
             on_account = False
@@ -957,7 +957,7 @@ class Main(QMainWindow):
             return None
 
         # Finish of progress bar
-        self.ui.progressBar.setValue(int(100))
+        # self.ui.progressBar.setValue(int(100))
 
     def clear_account_balances(self, customerID, balance, paymentID, creditAccountID, emp_id):
         try:

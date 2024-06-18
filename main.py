@@ -1183,7 +1183,7 @@ class Main(QMainWindow):
         :return:
         """
         settings = {
-            "vc_clientid": self.ui.txt_VCUser.text(),
+            "vc_client": self.ui.txt_VCUser.text(),
             "vc_secret": self.ui.txt_VCPass.text(),
             "vc_school": self.ui.txt_VCAPIURL.text(),
             "account_id": self.ui.txt_LSAccountID.text(),

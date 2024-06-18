@@ -16,7 +16,7 @@ For more information see ![WiKi](https://github.com/beckf/lightspeed-vc-connecto
 
 
 ### <a name="features"></a>Features
-* Releases are code signed using self-signed certificate located here: [CodeSigningCertPublic.cer](CodeSigningCertPublic.cer)
+* Windows releases are code signed using self-signed certificate located here: [CodeSigningCertPublic.cer](CodeSigningCertPublic.cer)
 * Settings are encrypted in AES256-CBC.
 * Create and update customers in Lightspeed directly from Veracross API.
 * Create and update customers that have been updated in VC after a specific date.
@@ -72,17 +72,20 @@ Gift Cards all together or do not use the credit account as a way to purchase th
 
 ![alt text](images/screenshots/ls_oauth_signup.png "LS OAuth")
 
-4) Obtain Veracross API credentials from Veracross Account Rep.
+4) Create a new Veracross API3 OAuth in Veracross and assign the scopes:
+
+![alt_text](images/screenshots/scopes.png "VC Scopes")
     
-5) Run the application.  You will be prompted for a password.  This password will be used for encrypting the new settings file.
+5) Run the application.  You will be prompted for a password.  This password will be used for encrypting the new settings file. You will enter this password on each 
+subsequential launch of the application.
 
 6) On the settings tab, enter:
-* LS Account ID Number (Click Username when logged into Lightspeed)
+* LS Account ID Number (Click Username when logged into Lightspeed R-Series)
 * LS Developer Client Developer ID
 * LS Developer Client Secret
-* VC Username
-* VC Password
-* VC URL (https://api.veracross.com/{schoolcode}/v2/)
+* VC API Client ID
+* VC API Secret
+* VC School Shortcode (abc)
 
 ![alt text](images/screenshots/lightspeed-account-num.png "LS AccountNum")
 

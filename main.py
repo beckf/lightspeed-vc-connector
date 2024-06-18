@@ -1,10 +1,11 @@
+import traceback
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtWebEngineCore import QWebEngineUrlRequestInterceptor
 from PyQt5.QtWebEngineWidgets import QWebEnginePage, QWebEngineView
 from mainwindow import Ui_MainWindow
-import veracross_api
+import veracross_api3 as veracross
 import lightspeed_api
 import sys
 import os
@@ -15,9 +16,9 @@ import pandas
 from decimal import Decimal, ROUND_HALF_UP
 import images
 import logging
-import traceback
 import update
 import json
+import subprocess
 
 # Set Scaling for High Resolution Displays
 if hasattr(Qt, 'AA_EnableHighDpiScaling'):
@@ -27,7 +28,11 @@ if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
     QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 # Setup Logfile
-logfile = os.environ['TEMP'] + "\\LSVCConnectorLog-" + str(datetime.date.today()) +".txt"
+try:
+    logfile = os.environ['TEMP'] + "\\LSVCConnectorLog-" + str(datetime.date.today()) + ".txt"
+except:
+    logfile = "/tmp/LSVCConnectorLog-" + str(datetime.date.today()) + ".txt"
+
 logging.basicConfig(filename=logfile)
 logging.basicConfig(level=logging.DEBUG)
 
@@ -67,7 +72,7 @@ class WorkerSignals(QObject):
 
 
 class AuthorizeLS(QMainWindow):
-    def __init__(self, auth_url: object) -> object:
+    def __init__(self, auth_url: object):
         QMainWindow.__init__(self)
         self.auth_url = auth_url
         self.page = QWebEnginePage()
@@ -133,12 +138,33 @@ class Main(QMainWindow):
                 self.c = config.load_settings("config", self.config_passwd)
             except ValueError:
                 QMessageBox.question(self, 'Incorrect Encryption Password',
-                                           "The password provided will not decrypt the settings.",
-                                           QMessageBox.Ok)
+                                     "The password provided will not decrypt the settings.",
+                                     QMessageBox.Ok)
 
-        # Initialize Veracross and Lightspeed connection
-        self.vc = veracross_api.Veracross(self.c)
-        self.ls = lightspeed_api.Lightspeed(self.c)
+        try:
+            # Initialize Veracross and Lightspeed connection
+            # Add needed scopes to VC API
+            self.vc_config = {
+                'scopes': [
+                    "students:read",
+                    "students:list",
+                    "staff_faculty:read",
+                    "staff_faculty:list",
+                    "households:list",
+                    "households:read"
+                ],
+                'client_id': self.c["vc_client"],
+                'client_secret': self.c["vc_secret"],
+                'school': self.c["vc_school"]
+            }
+            self.vc = veracross.Veracross(self.vc_config)
+        except:
+            self.debug_append_log("Unable to connect to Veracross API. Check Settings.", "window,debug")
+
+        try:
+            self.ls = lightspeed_api.Lightspeed(self.c)
+        except:
+            self.debug_append_log("Unable to connect to Lightspeed API. Check Settings.", "window,debug")
 
         # Images
         self.ui.lbl_Icon.setPixmap(QPixmap(":/images/icon.png"))
@@ -188,12 +214,12 @@ class Main(QMainWindow):
         # Progress bar zero at start
         self.ui.progressBar.setValue(0)
 
-        if "vcuser" in self.c.keys():
-            self.ui.txt_VCUser.setText(self.c["vcuser"])
-        if "vcpass" in self.c.keys():
-            self.ui.txt_VCPass.setText(self.c["vcpass"])
-        if "vcurl" in self.c.keys():
-            self.ui.txt_VCAPIURL.setText(self.c["vcurl"])
+        if "vc_client" in self.c.keys():
+            self.ui.txt_VCUser.setText(self.c["vc_client"])
+        if "vc_secret" in self.c.keys():
+            self.ui.txt_VCPass.setText(self.c["vc_secret"])
+        if "vc_school" in self.c.keys():
+            self.ui.txt_VCAPIURL.setText(self.c["vc_school"])
         if "client_id" in self.c.keys():
             self.ui.txt_LSDevelID.setText(self.c["client_id"])
         if "client_secret" in self.c.keys():
@@ -285,13 +311,14 @@ class Main(QMainWindow):
         # Determine if we are syncing VC changes after particular date and update params set to VC.
         if self.ui.checkBox_SyncChangesAfterDate.isChecked():
             updated_after_ui = self.ui.dateEdit_SyncUpdatedAfterDate.date()
-            param.update({"updated_after": str(updated_after_ui.toPyDate())})
+            param.update({"on_or_after_last_modified_date": str(updated_after_ui.toPyDate())})
 
         # If we are working with students, add additional parameters.
         if self.ui.combo_SyncVCUserType.currentText() == "Students":
             self.debug_append_log("Getting Veracross Students (Current)", "window,info")
 
             # Add a grade level filter
+            ## TODO: This no longer is a query parameter in VC API3... Will need to filter after pulling entire set.
             if not self.ui.combo_SyncGradeLevel.currentText() == "None":
                 if "Other" in self.ui.combo_SyncGradeLevel.currentText():
                     # Append non-standard grades to the grade_level param. 20-30
@@ -300,13 +327,16 @@ class Main(QMainWindow):
                     param.update({"grade_level": self.ui.combo_SyncGradeLevel.currentText()})
 
             # Limit to only current students
-            param.update({"option": "2"})
+            # deprecated in VCAPI3 param.update({"option": "2"})
 
             # Show our parameters to debug log
             self.debug_append_log("VC Parameters: " + str(param), "debug")
 
             # Get Veracross data for students
-            vcdata = self.vc.pull("students", parameters=param)
+            if len(param) > 0:
+                vcdata = self.vc.pull("students", parameters=param)
+            else:
+                vcdata = self.vc.pull("students")
 
             # Get Lightspeed id number that matches customer_type Student
             try:
@@ -320,13 +350,15 @@ class Main(QMainWindow):
             # Let user know whats up
             self.debug_append_log("Getting Veracross Faculty Staff (Faculty and Staff)", "window,info")
             # Limit to roles 1 & 2 in VC Api.
-            param.update({"roles": "1,2"})
+
+            # deprecated in VC API3.
+            # param.update({"roles": "1,2"})
 
             # Show parameters to debug log
             self.debug_append_log("VC Parameters: " + str(param), "debug")
 
             # Get Veracross data for Faculty Staff
-            vcdata = self.vc.pull("facstaff", parameters=param)
+            vcdata = self.vc.pull("staff_faculty")
 
             # Determine what Lightspeed customer id number for FacStaff
             try:
@@ -341,37 +373,36 @@ class Main(QMainWindow):
             return None
 
         # Going to use progress bar.  Make sure it is at zero first.
-        self.ui.progressBar.setValue(0)
+        # self.ui.progressBar.setValue(0)
 
         # Determine each increment for progress bar.
-        increment = 100 / len(vcdata)
-        total_increment = 0
+        # increment = 100 / len(vcdata)
+        # total_increment = 0
 
         # Loop through the data from VC.
         for i in vcdata:
 
             # increment the progress bar.
-            total_increment = total_increment + increment
-            self.ui.progressBar.setValue(int(total_increment))
+            # total_increment = total_increment + increment
+            # self.ui.progressBar.setValue(int(total_increment))
 
-            self.debug_append_log("Processing VC Record {}".format(i["person_pk"]), "debug")
+            self.debug_append_log("Processing VC Record {}".format(i["id"]), "debug")
 
             # Get household data for this person
-            hh = self.vc.pull("households/" + str(i["household_fk"]))
-            h = hh["household"]
+            h = self.vc.pull("households/" + str(i["household_id"]))
 
             # Set search parameters for lightspeed and see if we find someone in LS.
-            lsparam = dict(load_relations='all', limit=1, companyRegistrationNumber=str(i["person_pk"]))
+            lsparam = dict(load_relations='all', limit=1, companyRegistrationNumber=str(i["id"]))
             check_current = self.ls.get("Customer", parameters=lsparam)
 
             # Format data to how it should look. First name will format later.
             vc_formatted = {'Customer':
                                 {'firstName': '',
                                  'lastName': i["last_name"],
-                                 'companyRegistrationNumber': i["person_pk"],
+                                 'companyRegistrationNumber': i["id"],
                                  'customerTypeID': ls_customerTypeID,
                                  'Contact': {
-                                     'custom': i["person_pk"],
+                                     'custom': i["id"],
                                      'noEmail': 'false',
                                      'noPhone': 'false',
                                      'noMail': 'false',
@@ -383,12 +414,12 @@ class Main(QMainWindow):
                                      },
                                      'Addresses': {
                                          'ContactAddress': {
-                                             'address1': h["address_1"],
-                                             'address2': h["address_2"],
+                                             'address1': h["address_line_1"],
+                                             'address2': h["address_line_2"],
                                              'city': h["city"],
-                                             'state': h["state_province"],
-                                             'zip': h["postal_code"],
-                                             'country': h["country"],
+                                             'state': h["state_or_province"],
+                                             'zip': h["zip"],
+                                             'country': '',
                                              'countryCode': '',
                                              'stateCode': ''
                                          }
@@ -400,7 +431,7 @@ class Main(QMainWindow):
                                  'CustomFieldValues': {
                                      'CustomFieldValue': [{
                                          'customFieldID': self.veracrossid_field,
-                                         'value': i["person_pk"]
+                                         'value': i["id"]
                                      }, {
                                          'customFieldID': self.lastsync_field,
                                          'value': str(datetime.datetime.now())
@@ -411,10 +442,13 @@ class Main(QMainWindow):
 
             # Update data to use correct nick name format from VC.
             # Added becuase of bug in VC API where sometimes one is returned over other.
-            if 'nick_first_name' in i:
-                vc_formatted['Customer']['firstName'] = i['nick_first_name']
-            elif 'first_nick_name' in i:
-                vc_formatted['Customer']['firstName'] = i['first_nick_name']
+            if 'preferred_name' in i:
+                if i['preferred_name'] is None:
+                    vc_formatted['Customer']['firstName'] = i['first_name']
+                else:
+                    vc_formatted['Customer']['firstName'] = i['preferred_name']
+            elif 'first_name' in i:
+                vc_formatted['Customer']['firstName'] = i['first_name']
 
             # Did we find a record in lightspeed to sync to?
             if check_current:
@@ -425,12 +459,15 @@ class Main(QMainWindow):
                 ls_customer = dict()
 
                 # Format VC Data for comparison
-                vc_person["personpk"] = str(i["person_pk"])
+                vc_person["personpk"] = str(i["id"])
                 vc_person["last_name"] = i["last_name"]
-                if 'nick_first_name' in i:
-                    vc_person["first_name"] = i['nick_first_name']
-                elif 'first_nick_name' in i:
-                    vc_person["first_name"] = i['first_nick_name']
+                if 'preferred_name' in i:
+                    if i['preferred_name'] is None:
+                        vc_person["first_name"] = i['first_name']
+                    else:
+                        vc_person["first_name"] = i['preferred_name']
+                elif 'first_name' in i:
+                    vc_person["first_name"] = i['first_name']
 
                 # Handle missing email
                 if i["email_1"] is None:
@@ -438,14 +475,14 @@ class Main(QMainWindow):
                 else:
                     vc_person["email"] = i["email_1"]
 
-                vc_person["address_1"] = h["address_1"]
-                if h["address_2"] is None:
+                vc_person["address_1"] = h["address_line_1"]
+                if h["address_line_2"] is None:
                     vc_person["address_2"] = ''
                 else:
-                    vc_person["address_2"] = h["address_2"]
+                    vc_person["address_2"] = h["address_line_2"]
                 vc_person["city"] = h["city"]
-                vc_person["zip"] = h["postal_code"]
-                vc_person["state"] = h["state_province"]
+                vc_person["zip"] = h["zip"]
+                vc_person["state"] = h["state_or_province"]
 
                 # Format LS Data for comparison
                 try:
@@ -464,8 +501,10 @@ class Main(QMainWindow):
 
                 # Handle missing mailing addresses
                 try:
-                    ls_customer["address_1"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["address1"]
-                    ls_customer["address_2"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["address2"]
+                    ls_customer["address_1"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"][
+                        "address1"]
+                    ls_customer["address_2"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"][
+                        "address2"]
                     ls_customer["city"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["city"]
                     ls_customer["zip"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["zip"]
                     ls_customer["state"] = check_current["Customer"]["Contact"]["Addresses"]["ContactAddress"]["state"]
@@ -479,14 +518,15 @@ class Main(QMainWindow):
                 # Compare the data. Are the two dictionaries the same...
                 if not ls_customer == vc_person or self.ui.checkBox_ForceSync.isChecked():
                     self.debug_append_log("Updating customer {} {}.".format(vc_formatted['Customer']['firstName'],
-                                                                                vc_formatted['Customer']['lastName']),
+                                                                            vc_formatted['Customer']['lastName']),
                                           "info")
                     vc_formatted['Customer']['customerID'] = check_current['Customer']['customerID']
                     self.ls.update("Customer/" + vc_formatted['Customer']['customerID'], vc_formatted["Customer"])
                 else:
-                    self.debug_append_log("Record {} {} already up to date.".format(vc_formatted['Customer']['firstName'],
-                                                                            vc_formatted['Customer']['lastName']),
-                                          "info")
+                    self.debug_append_log(
+                        "Record {} {} already up to date.".format(vc_formatted['Customer']['firstName'],
+                                                                  vc_formatted['Customer']['lastName']),
+                        "info")
             else:
                 # Add new user when not found in LS
                 self.debug_append_log("Adding new Lightspeed Customer for {} {}".format(
@@ -530,10 +570,10 @@ class Main(QMainWindow):
         self.debug_append_log("Checking for customers to delete.", "window,info")
 
         valid_vc_ids = []
-        for i in self.vc.pull("facstaff", parameters=dict(roles='1,2')):
-            valid_vc_ids.append(i["person_pk"])
-        for i in self.vc.pull("students", parameters=dict(option="2")):
-            valid_vc_ids.append(i["person_pk"])
+        for i in self.vc.pull("staff_faculty"):
+            valid_vc_ids.append(i["id"])
+        for i in self.vc.pull("students"):
+            valid_vc_ids.append(i["id"])
 
         current_customers = self.ls.get("Customer", dict(load_relations="all"))
 
@@ -545,13 +585,15 @@ class Main(QMainWindow):
                             self.debug_append_log("Customer {} {} would normally be deleted (Simulation)".format(
                                 i["firstName"], i["lastName"]), "info")
                         else:
-                            self.debug_append_log("Deleting customer {} {}".format(i["firstName"], i["lastName"]), "info")
+                            self.debug_append_log("Deleting customer {} {}".format(i["firstName"], i["lastName"]),
+                                                  "info")
                             self.ls.delete("Customer/" + i["customerID"])
                     else:
-                        self.debug_append_log("Cannot delete customer {}, {} {} with credit balance.".format(i["customerID"],
-                                                                                                             i["firstName"],
-                                                                                                             i["lastName"]),
-                                              "info")
+                        self.debug_append_log(
+                            "Cannot delete customer {}, {} {} with credit balance.".format(i["customerID"],
+                                                                                           i["firstName"],
+                                                                                           i["lastName"]),
+                            "info")
 
     def export_charge_balance_worker(self):
         """
@@ -672,8 +714,8 @@ class Main(QMainWindow):
         for i in salelines['Sale']:
 
             # increment the progress bar.
-            total_increment = total_increment + increment
-            self.ui.progressBar.setValue(int(total_increment))
+            #total_increment = total_increment + increment
+            #self.ui.progressBar.setValue(int(total_increment))
 
             # Does this invoice have a payment that is on account.
             on_account = False
@@ -775,10 +817,10 @@ class Main(QMainWindow):
                     try:
                         # Is this a singleline sale?
                         if 'Item' in i["SaleLines"]["SaleLine"]:
-                        # Need to be able to identify the item by it's type and not if it has items.
-                        # What if only single misc charge?  To do this the way we clear balances needs to be change.
-                        # Ideally we would want a Payment to CC Account.
-                        #if isinstance(i["SaleLines"]["SaleLine"], dict):
+                            # Need to be able to identify the item by it's type and not if it has items.
+                            # What if only single misc charge?  To do this the way we clear balances needs to be change.
+                            # Ideally we would want a Payment to CC Account.
+                            # if isinstance(i["SaleLines"]["SaleLine"], dict):
                             # Ignore this entry if it was not in the shop selected.
                             if i["SaleLines"]["SaleLine"]["shopID"] != shop_id:
                                 self.debug_append_log("ShopID for entry is not the shop that was requested, "
@@ -837,19 +879,20 @@ class Main(QMainWindow):
 
         try:
             filename = str(self.ui.line_ExportFolder.text())
-            filename = filename + '/lightspeed_salelines_export_' + \
-                       datetime.datetime.now().strftime('%m%d%Y-%H%m%S') + '.xlsx'
+            filename = filename + f'/{shop}_Lightspeed_Salelines_Export_' + \
+                       datetime.datetime.now().strftime('%m%d%Y-%H%m%S') + '.csv'
             self.debug_append_log(str(filename), "info")
         except:
             self.debug_append_log("Unable to determine export file.", "window,info")
 
         try:
-            writer = pandas.ExcelWriter(filename, engine='xlsxwriter')
+            #writer = pandas.ExcelWriter(filename, engine='xlsxwriter')
             panda_data = pandas.DataFrame(saleline_export_data)
-            panda_data.to_excel(writer, sheet_name='Sheet1', header=False, index=False)
-            writer.close()
+            #panda_data.to_excel(writer, sheet_name='Sheet1', header=False, index=False)
+            #writer.close()
+            panda_data.to_csv(filename, index=False)
         except Exception as error:
-            self.debug_append_log("Failed to format XLSX SaleLine data.", "window,info")
+            self.debug_append_log("Failed to format SaleLine data.", "window,info")
             self.debug_append_log(error, "debug")
             return None
 
@@ -900,48 +943,49 @@ class Main(QMainWindow):
 
         try:
             filename = str(self.ui.line_ExportFolder.text())
-            filename = filename + '/lightspeed_balance_export_' + \
-                       datetime.datetime.now().strftime('%m%d%Y-%H%m%S') + '.xlsx'
+            filename = filename + f'/{shop}_Lightspeed_Balance_Export_' + \
+                       datetime.datetime.now().strftime('%m%d%Y-%H%m%S') + '.csv'
 
-            writer = pandas.ExcelWriter(filename, engine='xlsxwriter')
+            # writer = pandas.ExcelWriter(filename, engine='xlsxwriter')
             panda_data = pandas.DataFrame(export_data)
-            panda_data.to_excel(writer, sheet_name='Sheet1', header=False, index=False)
-            writer.close()
+            # panda_data.to_excel(writer, sheet_name='Sheet1', header=False, index=False)
+            # writer.close()
+            panda_data.to_csv(filename, index=False)
         except Exception as error:
-            self.debug_append_log("Failed to export XLSX balance data.", "window,info")
+            self.debug_append_log("Failed to export balance data.", "window,info")
             self.debug_append_log(error, "debug")
             return None
 
         # Finish of progress bar
-        self.ui.progressBar.setValue(int(100))
+        # self.ui.progressBar.setValue(int(100))
 
     def clear_account_balances(self, customerID, balance, paymentID, creditAccountID, emp_id):
         try:
             formatted_request = {
-                                "employeeID": emp_id,
-                                "registerID": 1,
-                                "shopID": 1,
-                                "customerID": customerID,
-                                "completed": 'true',
-                                "SaleLines": {
-                                    "SaleLine": {
-                                        "itemID": 0,
-                                        "note": "Balance Cleared by LSVCConnector",
-                                        "unitQuantity": 1,
-                                        "unitPrice": -float(balance),
-                                        "taxClassID": 0,
-                                        "avgCost": 0,
-                                        "fifoCost": 0
-                                    }
-                                },
-                                "SalePayments": {
-                                    "SalePayment": {
-                                        "amount": -float(balance),
-                                        "paymentTypeID": paymentID,
-                                        "creditAccountID": creditAccountID
-                                    }
-                                }
-                            }
+                "employeeID": emp_id,
+                "registerID": 1,
+                "shopID": 1,
+                "customerID": customerID,
+                "completed": 'true',
+                "SaleLines": {
+                    "SaleLine": {
+                        "itemID": 0,
+                        "note": "Balance Cleared by LSVCConnector",
+                        "unitQuantity": 1,
+                        "unitPrice": -float(balance),
+                        "taxClassID": 0,
+                        "avgCost": 0,
+                        "fifoCost": 0
+                    }
+                },
+                "SalePayments": {
+                    "SalePayment": {
+                        "amount": -float(balance),
+                        "paymentTypeID": paymentID,
+                        "creditAccountID": creditAccountID
+                    }
+                }
+            }
         except:
             self.debug_append_log("Unable to format data to clear balances.", "window,info")
 
@@ -1063,7 +1107,7 @@ class Main(QMainWindow):
         try:
             if len(self.c["client_id"]) > 0:
                 self.auth_url = "https://cloud.lightspeedapp.com/oauth/authorize.php?" \
-                                                 "response_type=code&client_id={}&scope=employee:all".format(self.c["client_id"])
+                                "response_type=code&client_id={}&scope=employee:all".format(self.c["client_id"])
                 self.authorize_window = AuthorizeLS(self.auth_url)
                 self.authorize_window.interceptor.code_returned.connect(self.authorization_complete)
         except:
@@ -1078,14 +1122,14 @@ class Main(QMainWindow):
         self.debug_append_log('Authorization Code Returned: ' + code, "window,info")
 
         if len(code) > 0:
-             token = self.ls.get_authorization_token(code)
-             self.debug_append_log('Refresh Token Returned: ' + token, "window,info")
-             self.ui.txt_RefreshToken.setText(token)
-             QMessageBox.question(self, 'Application Authorized with Lightspeed',
-                                  "Application is now authorized with your Lightspeed account. "
-                                  "Please restart application.",
-                                  QMessageBox.Ok)
-             self.save_settings_button()
+            token = self.ls.get_authorization_token(code)
+            self.debug_append_log('Refresh Token Returned: ' + token, "window,info")
+            self.ui.txt_RefreshToken.setText(token)
+            QMessageBox.question(self, 'Application Authorized with Lightspeed',
+                                 "Application is now authorized with your Lightspeed account. "
+                                 "Please restart application.",
+                                 QMessageBox.Ok)
+            self.save_settings_button()
 
     def debug_append_log(self, text, level):
         """
@@ -1098,18 +1142,20 @@ class Main(QMainWindow):
                 self.ui.txtb_SyncLog.append(text)
         except:
             traceback.print_exc()
+
         try:
             if "debug" in level and self.ui.chk_DebugExport.isChecked():
                 logging.warning(text)
         except:
             traceback.print_exc()
+
         try:
             if "info" in level:
                 logging.warning(text)
         except:
             traceback.print_exc()
 
-    def roundup_decimal(self,x):
+    def roundup_decimal(self, x):
         """
         Self-Explanatory
         :param x: rounded up decimal to two places.
@@ -1122,10 +1168,12 @@ class Main(QMainWindow):
         self.ui.line_ExportFolder.setText(self.export_dir)
 
     def open_log_to_file(self):
-        filename = os.environ['TEMP'] + "\\LSVCConnectorLog-" + str(datetime.date.today()) +".txt"
         try:
-            if os.path.isfile(filename):
-                os.startfile(filename)
+            if os.path.isfile(logfile):
+                if sys.platform == "darwin":
+                    subprocess.call(['open', logfile])
+                else:
+                    os.startfile(logfile)
         except:
             self.debug_append_log("Unable to open log file.", "window,info")
 
@@ -1135,9 +1183,9 @@ class Main(QMainWindow):
         :return:
         """
         settings = {
-            "vcuser": self.ui.txt_VCUser.text(),
-            "vcpass": self.ui.txt_VCPass.text(),
-            "vcurl": self.ui.txt_VCAPIURL.text(),
+            "vc_client": self.ui.txt_VCUser.text(),
+            "vc_secret": self.ui.txt_VCPass.text(),
+            "vc_school": self.ui.txt_VCAPIURL.text(),
             "account_id": self.ui.txt_LSAccountID.text(),
             "refresh_token": self.ui.txt_RefreshToken.text(),
             "client_secret": self.ui.txt_DevelSecret.text(),
@@ -1172,7 +1220,8 @@ class Main(QMainWindow):
             new_password = self.ui.txt_ChangeUpdatePassword.text()
             config.change_password(self.config_passwd, new_password)
             self.config_passwd = new_password
-            QMessageBox.question(self, 'Password Updated.', 'The password has now been changed to: {}'.format(new_password),
+            QMessageBox.question(self, 'Password Updated.',
+                                 'The password has now been changed to: {}'.format(new_password),
                                  QMessageBox.Ok)
         else:
             QMessageBox.question(self, 'Password Too Short.',

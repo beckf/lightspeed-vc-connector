@@ -443,7 +443,7 @@ class Main(QMainWindow):
             # Update data to use correct nick name format from VC.
             # Added becuase of bug in VC API where sometimes one is returned over other.
             if 'preferred_name' in i:
-                if 'preferred_name' == 'None':
+                if i['preferred_name'] is None:
                     vc_formatted['Customer']['firstName'] = i['first_name']
                 else:
                     vc_formatted['Customer']['firstName'] = i['preferred_name']
@@ -462,7 +462,7 @@ class Main(QMainWindow):
                 vc_person["personpk"] = str(i["id"])
                 vc_person["last_name"] = i["last_name"]
                 if 'preferred_name' in i:
-                    if 'preferred_name' == 'None':
+                    if i['preferred_name'] is None:
                         vc_person["first_name"] = i['first_name']
                     else:
                         vc_person["first_name"] = i['preferred_name']
@@ -879,19 +879,20 @@ class Main(QMainWindow):
 
         try:
             filename = str(self.ui.line_ExportFolder.text())
-            filename = filename + '/lightspeed_salelines_export_' + \
-                       datetime.datetime.now().strftime('%m%d%Y-%H%m%S') + '.xlsx'
+            filename = filename + f'/{shop}_Lightspeed_Salelines_Export_' + \
+                       datetime.datetime.now().strftime('%m%d%Y-%H%m%S') + '.csv'
             self.debug_append_log(str(filename), "info")
         except:
             self.debug_append_log("Unable to determine export file.", "window,info")
 
         try:
-            writer = pandas.ExcelWriter(filename, engine='xlsxwriter')
+            #writer = pandas.ExcelWriter(filename, engine='xlsxwriter')
             panda_data = pandas.DataFrame(saleline_export_data)
-            panda_data.to_excel(writer, sheet_name='Sheet1', header=False, index=False)
-            writer.close()
+            #panda_data.to_excel(writer, sheet_name='Sheet1', header=False, index=False)
+            #writer.close()
+            panda_data.to_csv(filename, index=False)
         except Exception as error:
-            self.debug_append_log("Failed to format XLSX SaleLine data.", "window,info")
+            self.debug_append_log("Failed to format SaleLine data.", "window,info")
             self.debug_append_log(error, "debug")
             return None
 
@@ -942,15 +943,16 @@ class Main(QMainWindow):
 
         try:
             filename = str(self.ui.line_ExportFolder.text())
-            filename = filename + '/lightspeed_balance_export_' + \
-                       datetime.datetime.now().strftime('%m%d%Y-%H%m%S') + '.xlsx'
+            filename = filename + f'/{shop}_Lightspeed_Balance_Export_' + \
+                       datetime.datetime.now().strftime('%m%d%Y-%H%m%S') + '.csv'
 
-            writer = pandas.ExcelWriter(filename, engine='xlsxwriter')
+            # writer = pandas.ExcelWriter(filename, engine='xlsxwriter')
             panda_data = pandas.DataFrame(export_data)
-            panda_data.to_excel(writer, sheet_name='Sheet1', header=False, index=False)
-            writer.close()
+            # panda_data.to_excel(writer, sheet_name='Sheet1', header=False, index=False)
+            # writer.close()
+            panda_data.to_csv(filename, index=False)
         except Exception as error:
-            self.debug_append_log("Failed to export XLSX balance data.", "window,info")
+            self.debug_append_log("Failed to export balance data.", "window,info")
             self.debug_append_log(error, "debug")
             return None
 

@@ -16,7 +16,7 @@ For more information see ![WiKi](https://github.com/beckf/lightspeed-vc-connecto
 
 
 ### <a name="features"></a>Features
-* Releases are code signed using self-signed certificate located here: [CodeSigningCertPublic.cer](CodeSigningCertPublic.cer)
+* Windows releases are code signed using self-signed certificate located here: [CodeSigningCertPublic.cer](CodeSigningCertPublic.cer)
 * Settings are encrypted in AES256-CBC.
 * Create and update customers in Lightspeed directly from Veracross API.
 * Create and update customers that have been updated in VC after a specific date.

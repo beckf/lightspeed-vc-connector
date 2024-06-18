@@ -153,7 +153,7 @@ class Main(QMainWindow):
                     "households:list",
                     "households:read"
                 ],
-                'client_id': self.c["vc_clientid"],
+                'client_id': self.c["vc_client"],
                 'client_secret': self.c["vc_secret"],
                 'school': self.c["vc_school"]
             }
